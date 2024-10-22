@@ -20,6 +20,14 @@ const DailyMachineCheckPage = () => {
     note: "",
   });
 
+  const buttonClass = `px-4 py-2 rounded-md text-white ${
+    darkMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-blue-600 hover:bg-blue-700'
+  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out`;
+
+  const inputClass = `w-full px-3 py-2 border ${
+    darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'
+  } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`;
+
   const handleScanMachine = async () => {
     try {
       setIsScanning(true);
@@ -29,6 +37,12 @@ const DailyMachineCheckPage = () => {
           setMachineId(result);
           setFormData(prev => ({ ...prev, machineId: result }));
           setIsScanning(false);
+          // ปิดกล้องเมื่อสแกนสำเร็จ
+          stopScanning();
+          const previewContainer = document.getElementById("camera-container");
+          if (previewContainer) {
+            previewContainer.style.display = "none";
+          }
           Swal.fire({
             title: "สแกนสำเร็จ!",
             text: `รหัสเครื่องจักร: ${result}`,
@@ -37,6 +51,12 @@ const DailyMachineCheckPage = () => {
         },
         onError: (error) => {
           setIsScanning(false);
+          // ปิดกล้องเมื่อเกิดข้อผิดพลาด
+          stopScanning();
+          const previewContainer = document.getElementById("camera-container");
+          if (previewContainer) {
+            previewContainer.style.display = "none";
+          }
           Swal.fire({
             title: "เกิดข้อผิดพลาด!",
             text: error,
@@ -47,7 +67,7 @@ const DailyMachineCheckPage = () => {
 
       const cancelButton = document.createElement("button");
       cancelButton.textContent = "ยกเลิกการสแกน";
-      cancelButton.className = buttonClass;
+      cancelButton.className = `${buttonClass} mt-4 w-full`;
       cancelButton.onclick = () => {
         stopScanning();
         setIsScanning(false);
@@ -65,6 +85,11 @@ const DailyMachineCheckPage = () => {
     } catch (error) {
       console.error("ไม่สามารถเริ่มการสแกนได้:", error);
       setIsScanning(false);
+      Swal.fire({
+        title: "เกิดข้อผิดพลาด!",
+        text: "ไม่สามารถเริ่มการสแกนได้",
+        icon: "error",
+      });
     }
   };
 
@@ -90,14 +115,6 @@ const DailyMachineCheckPage = () => {
       icon: "success",
     });
   };
-
-  const buttonClass = `px-4 py-2 rounded-md text-white ${
-    darkMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-blue-600 hover:bg-blue-700'
-  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out`;
-
-  const inputClass = `w-full px-3 py-2 border ${
-    darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'
-  } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`;
 
   return (
     <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>

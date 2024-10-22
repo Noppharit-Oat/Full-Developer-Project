@@ -5,7 +5,7 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Sun, Moon, LogOut } from "lucide-react";
-import { useDarkMode } from "../../hooks/useDarkMode";
+import { useDarkMode } from "@/contexts/DarkModeContext"; 
 //import { useAuth } from "../../contexts/auth-context";
 import Swal from "sweetalert2";
 

@@ -1,4 +1,5 @@
 // src/app/main-menu/machine-down/page.tsx
+
 "use client";
 import { useState } from "react";
 import { startQRScanner } from "@/lib/qr-scanner";
@@ -30,6 +31,17 @@ const MachineDownPage = () => {
     darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'
   } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`;
 
+  const cleanup = () => {
+    setIsScanning(false);
+    const previewContainer = document.getElementById("camera-container");
+    if (previewContainer) {
+      previewContainer.style.display = "none";
+      // ลบปุ่มยกเลิกการสแกนทั้งหมดที่มีอยู่
+      const cancelButtons = previewContainer.querySelectorAll('.cancel-scan-button');
+      cancelButtons.forEach(button => button.remove());
+    }
+  };
+
   const handleScanMachine = async () => {
     try {
       setIsScanning(true);
@@ -38,13 +50,8 @@ const MachineDownPage = () => {
         onSuccess: (result) => {
           setMachineId(result);
           setFormData(prev => ({ ...prev, machineId: result }));
-          setIsScanning(false);
-          // ปิดกล้องเมื่อสแกนสำเร็จ
           stopScanning();
-          const previewContainer = document.getElementById("camera-container");
-          if (previewContainer) {
-            previewContainer.style.display = "none";
-          }
+          cleanup();
           Swal.fire({
             title: "สแกนสำเร็จ!",
             text: `รหัสเครื่องจักร: ${result}`,
@@ -52,13 +59,8 @@ const MachineDownPage = () => {
           });
         },
         onError: (error) => {
-          setIsScanning(false);
-          // ปิดกล้องเมื่อเกิดข้อผิดพลาด
           stopScanning();
-          const previewContainer = document.getElementById("camera-container");
-          if (previewContainer) {
-            previewContainer.style.display = "none";
-          }
+          cleanup();
           Swal.fire({
             title: "เกิดข้อผิดพลาด!",
             text: error,
@@ -67,26 +69,29 @@ const MachineDownPage = () => {
         },
       });
 
-      const cancelButton = document.createElement("button");
-      cancelButton.textContent = "ยกเลิกการสแกน";
-      cancelButton.className = `${buttonClass} mt-4 w-full`;
-      cancelButton.onclick = () => {
-        stopScanning();
-        setIsScanning(false);
-        const previewContainer = document.getElementById("camera-container");
-        if (previewContainer) {
-          previewContainer.style.display = "none";
-        }
-      };
-
       const previewContainer = document.getElementById("camera-container");
       if (previewContainer) {
+        // ลบปุ่มยกเลิกการสแกนเก่า (ถ้ามี) ก่อนเพิ่มปุ่มใหม่
+        const existingButton = previewContainer.querySelector('.cancel-scan-button');
+        if (existingButton) {
+          existingButton.remove();
+        }
+
+        // เพิ่มปุ่มยกเลิกใหม่
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "ยกเลิกการสแกน";
+        cancelButton.className = `${buttonClass} mt-4 w-full cancel-scan-button`;
+        cancelButton.onclick = () => {
+          stopScanning();
+          cleanup();
+        };
+
         previewContainer.style.display = "block";
         previewContainer.appendChild(cancelButton);
       }
     } catch (error) {
       console.error("ไม่สามารถเริ่มการสแกนได้:", error);
-      setIsScanning(false);
+      cleanup();
       Swal.fire({
         title: "เกิดข้อผิดพลาด!",
         text: "ไม่สามารถเริ่มการสแกนได้",

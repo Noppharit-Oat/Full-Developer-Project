@@ -1,11 +1,14 @@
 // src/components/providers/DarkModeProvider.tsx
-
 "use client";
-import React, { useState, useEffect } from "react";
-import { DarkModeContext } from "../../contexts/DarkModeContext";
-import Navbar from "../layout/navbar";
 
-export function DarkModeProvider({ children }: { children: React.ReactNode }) {
+import React, { useState, useEffect } from "react";
+import { DarkModeContext } from "@/contexts/DarkModeContext";
+
+interface DarkModeProviderProps {
+  children: React.ReactNode;
+}
+
+export function DarkModeProvider({ children }: DarkModeProviderProps) {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -19,7 +22,6 @@ export function DarkModeProvider({ children }: { children: React.ReactNode }) {
   return (
     <DarkModeContext.Provider value={{ darkMode, setDarkMode }}>
       <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
-        <Navbar />
         {children}
       </div>
     </DarkModeContext.Provider>

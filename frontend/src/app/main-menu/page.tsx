@@ -4,8 +4,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
-import LevelUser from "../../components/user/level-user";
-import { useDarkMode } from '../../components/providers/DarkModeProvider';
+import { useDarkMode } from "@/contexts/DarkModeContext"; 
+import LevelUser from "@/components/user/level-user";
 // import { useAuth } from '../../contexts/auth-context';
 
 // Temporary type for user

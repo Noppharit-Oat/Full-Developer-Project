@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Menu, Activity, CheckSquare, AlertTriangle, FileText, Settings, Users, BarChart2, Sun, Moon } from "lucide-react";
-import { useDarkMode } from '../../hooks/useDarkMode';
+import { useDarkMode } from '@/contexts/DarkModeContext';
 // import { useAuth } from '../../contexts/auth-context';
 
 interface MenuItem {

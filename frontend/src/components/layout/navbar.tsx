@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
   
     // Temporary placeholders for authentication
     const isLoggedIn = true; // หรือ false ตามที่ต้องการ
-    const user = { role: 1 }; // สมมติว่ามี role เป็น 1
+    const user = { role: 5 }; // สมมติว่ามี role เป็น 1
     const logout = () => console.log("Logout function called");
     const checkLoginStatus = () => console.log("Check login status called");
   // Temporary placeholders for authentication

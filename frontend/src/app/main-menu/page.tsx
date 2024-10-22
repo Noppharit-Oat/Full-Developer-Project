@@ -1,4 +1,6 @@
 // src/app/main-menu/page.tsx
+
+
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
@@ -18,7 +20,7 @@ const MainMenuPage: React.FC = () => {
   const router = useRouter();
 
   // Temporary placeholders for authentication
-  const user: User | null = { role: 1 }; // Simulating a logged-in user
+  const user: User | null = { role: 6 }; // Simulating a logged-in user
   const isLoading = false;
 
   useEffect(() => {

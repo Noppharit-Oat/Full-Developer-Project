@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Menu, Activity, CheckSquare, AlertTriangle, FileText, Settings, Users, BarChart2, Sun, Moon } from "lucide-react";
+import { ChevronRight, Activity, CheckSquare, AlertTriangle, FileText, Settings, Users, BarChart2, Sun, Moon } from "lucide-react";
 import { useDarkMode } from '@/contexts/DarkModeContext';
 // import { useAuth } from '../../contexts/auth-context';
 
@@ -61,18 +61,18 @@ const LevelUser: React.FC<LevelUserProps> = ({ userRole }) => {
       { title: "Work Instruction", action: "Work-Instruction" },
       { title: "Log Daily Machine", action: "Log-Daily-Machine" },
       { title: "Log Machine Down", action: "Log-Machine-Down" },
-      { title: "Output Dashboard", action: "Out-PutDash-Board" },
+      { title: "Output Dashboard", action: "OutPut-DashBoard" },
       { title: "Register User", action: "Register" },
       { title: 'User Profile', action: 'User-Profile' },
     ],
     3: [
-      { title: "Machine Down Board", action: "Machine-Down-Board" },
+      { title: "Machine Down Dashboard", action: "MachineDown-Dashboard" },
       { title: 'User Profile', action: 'User-Profile' },
     ],
     4: [
       { title: "Log Daily Machine", action: "Log-Daily-Machine" },
       { title: "Log Machine Down", action: "Log-Machine-Down" },
-      { title: "Output Dashboard", action: "Out-PutDash-Board" },
+      { title: "Output Dashboard", action: "OutPut-DashBoard" },
       { title: "Work Instruction", action: "Work-Instruction" },
       { title: "Register User", action: "Register" },
       { title: 'User Profile', action: 'User-Profile' },
@@ -80,10 +80,10 @@ const LevelUser: React.FC<LevelUserProps> = ({ userRole }) => {
     5: [
       { title: "Log Daily Machine", action: "Log-Daily-Machine" },
       { title: "Log Machine Down", action: "Log-Machine-Down" },
-      { title: "Output Dashboard", action: "Out-PutDash-Board" },
+      { title: "Output Dashboard", action: "OutPut-DashBoard" },
       { title: "Work Instruction", action: "Work-Instruction" },
       { title: "Register Technician", action: "Register" },
-      { title: "Machine Down Board", action: "Machine-Down-Board" },
+      { title: "Machine Down Dashboard", action: "MachineDown-Dashboard" },
       { title: 'User Profile', action: 'User-Profile' },
     ],
     6: [
@@ -92,8 +92,8 @@ const LevelUser: React.FC<LevelUserProps> = ({ userRole }) => {
       { title: "Work Instruction", action: "Work-Instruction" },
       { title: "Log Daily Machine", action: "Log-Daily-Machine" },
       { title: "Log Machine Down", action: "Log-Machine-Down" },
-      { title: "Machine Down Board", action: "Machine-Down-Board" },
-      { title: "Output Dashboard", action: "Out-Put-DashBoard" },
+      { title: "Machine Down Dashboard", action: "MachineDown-Dashboard" },
+      { title: "Output Dashboard", action: "OutPut-DashBoard" },
       { title: "Register", action: "Register" },
       { title: "Delete User", action: "Delete-User" },
       { title: "User Profile", action: "User-Profile" },

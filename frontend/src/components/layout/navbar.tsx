@@ -66,7 +66,7 @@ const Navbar: React.FC = () => {
         },
       });
       if (password === "424" || password === "123") {
-        router.push("/main-menu/MachineDownBoard");
+        router.push("/main-menu/machinedown-dashboard");
       } else {
         Swal.fire({
           icon: "error",
@@ -75,7 +75,7 @@ const Navbar: React.FC = () => {
         });
       }
     } else {
-      router.push("/main-menu/machine-dashboard");
+      router.push("/main-menu/machinedown-dashboard");
     }
   };
 

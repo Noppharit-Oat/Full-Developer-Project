@@ -6,25 +6,31 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "rm -rf .next out",
+    "clean:all": "rm -rf .next out node_modules package-lock.json"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.453.0",
     "next": "14.2.15",
+    "next-auth": "^4.24.8",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.53.1",
     "sweetalert2": "^11.14.4",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^22.7.8",
+    "@types/json5": "^0.0.30",
+    "@types/node": "^20.16.14",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
-    "@types/tailwindcss": "^3.0.11",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.15",

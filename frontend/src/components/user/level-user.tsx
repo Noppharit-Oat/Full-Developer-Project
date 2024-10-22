@@ -95,7 +95,7 @@ const LevelUser: React.FC<LevelUserProps> = ({ userRole }) => {
       { title: "Machine Down Board", action: "Machine-Down-Board" },
       { title: "Output Dashboard", action: "Out-Put-DashBoard" },
       { title: "Register", action: "Register" },
-      { title: "Delete User", action: "DeleteUser" },
+      { title: "Delete User", action: "Delete-User" },
       { title: "User Profile", action: "User-Profile" },
     ],
   };

@@ -4,12 +4,14 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { DarkModeProvider } from "@/components/providers/DarkModeProvider";
+import Navbar from "@/components/layout/navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
@@ -32,7 +34,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <DarkModeProvider>
-        {children}
+          <main className="min-h-screen bg-background">
+            <Navbar />
+            <div className="container mx-auto px-4 py-4">
+              {children}
+            </div>
+          </main>
         </DarkModeProvider>
       </body>
     </html>

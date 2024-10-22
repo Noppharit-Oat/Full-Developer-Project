@@ -5,7 +5,7 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Sun, Moon, LogOut } from "lucide-react";
-import { useDarkMode } from "@/contexts/DarkModeContext"; 
+import { useDarkMode } from "@/contexts/DarkModeContext";
 //import { useAuth } from "../../contexts/auth-context";
 import Swal from "sweetalert2";
 
@@ -14,14 +14,14 @@ const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   //const { isLoggedIn, user, logout, checkLoginStatus } = useAuth();
-  
-    // Temporary placeholders for authentication
-    const isLoggedIn = true; // หรือ false ตามที่ต้องการ
-    const user = { role: 5 }; // สมมติว่ามี role เป็น 1
-    const logout = () => console.log("Logout function called");
-    const checkLoginStatus = () => console.log("Check login status called");
+
   // Temporary placeholders for authentication
-  
+  const isLoggedIn = true; // หรือ false ตามที่ต้องการ
+  const user = { role: 5 }; // สมมติว่ามี role เป็น 1
+  const logout = () => console.log("Logout function called");
+  const checkLoginStatus = () => console.log("Check login status called");
+  // Temporary placeholders for authentication
+
   useEffect(() => {
     checkLoginStatus();
   }, [pathname, checkLoginStatus]);
@@ -49,7 +49,9 @@ const Navbar: React.FC = () => {
     });
   };
 
-  const handleMachineDownClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMachineDownClick = async (
+    e: React.MouseEvent<HTMLAnchorElement>
+  ) => {
     e.preventDefault();
     if (!isLoggedIn || (user?.role && ![3, 5, 6].includes(user.role))) {
       const { value: password } = await Swal.fire({

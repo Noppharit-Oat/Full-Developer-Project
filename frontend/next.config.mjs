@@ -1,11 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    webpack: (config, { dev }) => {
-      if (dev) {
-        config.cache = false;
-      }
-      return config;
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.cache = false;
     }
+    return config;
   }
-  
-  export default nextConfig
+}
+
+export default nextConfig

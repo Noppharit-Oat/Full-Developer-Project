@@ -22,7 +22,8 @@
       "@/*": ["./src/*"]
     },
     "baseUrl": ".",
-    "types": ["node"]  // แก้ไขโดยเพิ่มแค่บรรทัดนี้
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
     "next-env.d.ts",
@@ -31,7 +32,8 @@
     ".next/types/**/*.ts",
     "src/app/api/auth/[...nextauth]/route.ts",
     "src/app/api/machines/route.ts",
-    "src/app/api/users/route.ts"
+    "src/app/api/users/route.ts",
+    "src/**/*.d.ts",
   ],
   "exclude": ["node_modules"]
 }

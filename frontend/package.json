@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "bun next dev --hostname 0.0.0.0 --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -11,32 +11,34 @@
     "clean:all": "rm -rf .next out node_modules package-lock.json"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.9.0",
+    "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "html5-qrcode": "^2.3.8",
     "jsqr": "^1.4.0",
-    "lucide-react": "^0.453.0",
-    "next": "14.2.15",
-    "next-auth": "^4.24.8",
+    "lucide-react": "^0.454.0",
+    "next": "15.0.2",
+    "next-auth": "^4.24.10",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.1",
-    "recharts": "^2.13.0",
+    "recharts": "^2.13.2",
     "sweetalert2": "^11.14.4",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/json5": "^0.0.30",
-    "@types/node": "^20.16.14",
-    "@types/react": "^18.3.11",
+    "@types/json5": "^2.2.0",
+    "@types/node": "^22.8.4",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.15",
+    "eslint": "^9.13.0",
+    "eslint-config-next": "15.0.2",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
     "typescript": "^5.6.3"
   }
 }
+

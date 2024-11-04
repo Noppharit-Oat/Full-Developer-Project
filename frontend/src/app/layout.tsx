@@ -1,10 +1,10 @@
-// src/app/layout.tsx
+// src/app/layout.jsx
 
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { DarkModeProvider } from "@/components/providers/DarkModeProvider";
-import Navbar from "@/components/layout/navbar";
+import { DarkModeProvider } from './components/DarkModeProvider';
+import { AuthProvider } from '../contexts/AuthContext';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -25,22 +25,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <DarkModeProvider>
-          <main className="min-h-screen bg-background">
-            <Navbar />
-            <div className="container mx-auto px-4 py-4">
-              {children}
-            </div>
-          </main>
-        </DarkModeProvider>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body>
+        <AuthProvider>
+          <DarkModeProvider>
+            {children}
+          </DarkModeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

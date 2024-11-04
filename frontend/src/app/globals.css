@@ -1,50 +1,20 @@
-/* src/app/globals.css */
+/* /src/app/globals CSS */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    /* Light mode colors */
-    --background: #ffffff;
-    --background-secondary: #f9fafb;
-    --foreground: #020817;
-    --foreground-secondary: #1f2937;
-    
-    --primary: #0ea5e9;
-    --primary-foreground: #ffffff;
-    
-    --secondary: #f3f4f6;
-    --secondary-foreground: #1f2937;
-    
-    --muted: #f3f4f6;
-    --muted-foreground: #6b7280;
-    
-    --accent: #f3f4f6;
-    --accent-foreground: #1f2937;
-    
-    --border: #e5e7eb;
-  }
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+}
 
-  .dark {
-    /* Dark mode colors */
-    --background: #020817;
-    --background-secondary: #1f2937;
-    --foreground: #ffffff;
-    --foreground-secondary: #f9fafb;
-    
-    --primary: #0ea5e9;
-    --primary-foreground: #020817;
-    
-    --secondary: #1f2937;
-    --secondary-foreground: #f9fafb;
-    
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
-    
-    --accent: #1f2937;
-    --accent-foreground: #f9fafb;
-    
-    --border: #1f2937;
-  }
+.dark {
+  --background: #1a202c;
+  --foreground: #ffffff;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
 }

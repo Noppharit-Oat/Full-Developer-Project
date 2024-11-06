@@ -6,6 +6,7 @@ import { ChevronRight, Menu, Activity, CheckSquare, AlertTriangle, FileText, Set
 import { useDarkMode } from './DarkModeProvider';
 import { useAuth } from '../../contexts/AuthContext';
 import { title } from "process";
+import { Trash2 } from 'lucide-react';
 
 function LevelUser({ userRole }) {
   const router = useRouter();
@@ -21,14 +22,16 @@ function LevelUser({ userRole }) {
 
   const getIcon = (action) => {
     switch (action) {
-      case "DailyMachineCheck": return <CheckSquare className="h-6 w-6" />;
-      case "MachineDown": return <AlertTriangle className="h-6 w-6" />;
-      case "WorkInstruction": return <FileText className="h-6 w-6" />;
-      case "LogDailyMachine": return <Activity className="h-6 w-6" />;
-      case "LogMachineDown": return <Settings className="h-6 w-6" />;
-      case "OutPutDashBoard": return <BarChart2 className="h-6 w-6" />;
-      case "Register": return <Users className="h-6 w-6" />;
-      case 'UserProfile': return <Settings className="h-6 w-6" />;
+      case "daily-machine-check": return <CheckSquare className="h-6 w-6" />;
+      case "machine-down": return <AlertTriangle className="h-6 w-6" />;
+      case "work-instruction": return <FileText className="h-6 w-6" />;
+      case "log-dailymachine": return <Activity className="h-6 w-6" />;
+      case "log-machinedown": return <Settings className="h-6 w-6" />;
+      case "output-dashboard": return <BarChart2 className="h-6 w-6" />;
+      case "register": return <Users className="h-6 w-6" />;
+      case 'user-profile': return <Settings className="h-6 w-6" />;
+      case "machinedown-dashboard": return <PauseCircle className="h-6 w-6" />;
+      case "delete-user": return <Trash2 className="h-6 w-6" />;
       default: return <ChevronRight className="h-6 w-6" />;
     }
   };

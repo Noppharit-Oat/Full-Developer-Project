@@ -1,4 +1,4 @@
-// src/app/main-menu/Register/page.jsx
+// src/app/main-menu/register/page.jsx
 
 "use client";
 

@@ -1,7 +1,7 @@
 // src/app/api/usercheck/route.js
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-const BACKEND_URL = process.env.BACKEND_URL || 'http://10.211.55.12:5000';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://172.31.71.125:5000';
 export async function POST(request) {
 try {
 const body = await request.json();

@@ -16,7 +16,7 @@ function LevelUser({ userRole }) {
 
   const handleButtonClick = (action) => {
     console.log(`${action} clicked`);
-    router.push(`/MainMenu/${action.replace(/\s+/g, "_")}`);
+    router.push(`/main-menu/${action.replace(/\s+/g, "_")}`);
   };
 
   const getIcon = (action) => {
@@ -35,53 +35,53 @@ function LevelUser({ userRole }) {
 
   const menuItems = {
     1: [
-      { title: "Machine Daily Check", action: "DailyMachineCheck" },
-      { title: "Machine Down", action: "MachineDown" },
-      { title: "Work Instruction", action: "WorkInstruction" },
-      { title: 'User Profile', action: 'UserProfile' },
+      { title: "Machine Daily Check", action: "daily-machine-check" },
+      { title: "Machine Down", action: "machine-down" },
+      { title: "Work Instruction", action: "work-instruction" },
+      { title: 'User Profile', action: 'user-profile' },
     ],
     2: [
-      { title: "Machine Daily Check", action: "DailyMachineCheck" },
-      { title: "Machine Down", action: "MachineDown" },
-      { title: "Work Instruction", action: "WorkInstruction" },
-      { title: "Log Daily Machine", action: "LogDailyMachine" },
-      { title: "Log Machine Down", action: "LogMachineDown" },
-      { title: "Output Dashboard", action: "OutPutDashBoard" },
-      { title: "Register User", action: "Register" },
-      { title: 'User Profile', action: 'UserProfile' },
+      { title: "Machine Daily Check", action: "daily-machine-check" },
+      { title: "Machine Down", action: "machine-down" },
+      { title: "Work Instruction", action: "work-instruction" },
+      { title: "Log Daily Machine", action: "log-dailymachine" },
+      { title: "Log Machine Down", action: "log-machinedown" },
+      { title: "Output Dashboard", action: "output-dashboard" },
+      { title: "Register User", action: "register" },
+      { title: 'User Profile', action: 'user-profile' },
     ],
     3: [
-      { title: "Machine Down Board", action: "MachineDownBoard" },
-      { title: 'User Profile', action: 'UserProfile' },
+      { title: "Machine Down DashBoard", action: "machinedown-dashdoard" },
+      { title: 'User Profile', action: 'user-profile' },
     ],
     4: [
-      { title: "Log Daily Machine", action: "LogDailyMachine" },
-      { title: "Log Machine Down", action: "LogMachineDown" },
-      { title: "Output Dashboard", action: "OutPutDashBoard" },
-      { title: "Work Instruction", action: "WorkInstruction" },
-      { title: "Register User", action: "Register" },
-      { title: 'User Profile', action: 'UserProfile' },
+      { title: "Log Daily Machine", action: "log-dailymachine" },
+      { title: "Log Machine Down", action: "log-machinedown" },
+      { title: "Output Dashboard", action: "output-dashboard" },
+      { title: "Work Instruction", action: "work-instruction" },
+      { title: "Register User", action: "register" },
+      { title: 'User Profile', action: 'user-profile' },
     ],
     5: [
-      { title: "Log Daily Machine", action: "LogDailyMachine" },
-      { title: "Log Machine Down", action: "LogMachineDown" },
-      { title: "Output Dashboard", action: "OutPutDashBoard" },
-      { title: "Work Instruction", action: "WorkInstruction" },
-      { title: "Register Technician", action: "Register" },
-      { title: "Machine Down Board", action: "MachineDownBoard" },
-      { title: 'User Profile', action: 'UserProfile' },
+      { title: "Log Daily Machine", action: "log-dailymachine" },
+      { title: "Log Machine Down", action: "log-machinedown" },
+      { title: "Output Dashboard", action: "output-dashboard" },
+      { title: "Work Instruction", action: "work-instruction" },
+      { title: "Register Technician", action: "register" },
+      { title: "Machine Down DashBoard", action: "machinedown-dashdoard" },
+      { title: 'User Profile', action: 'user-profile' },
     ],
     6: [
-      { title: "Machine Daily Check", action: "DailyMachineCheck" },
-      { title: "Machine Down", action: "MachineDown" },
-      { title: "Work Instruction", action: "WorkInstruction" },
-      { title: "Log Daily Machine", action: "LogDailyMachine" },
-      { title: "Log Machine Down", action: "LogMachineDown" },
-      { title: "Machine Down Board", action: "MachineDownBoard" },
-      { title: "Output Dashboard", action: "OutPutDashBoard" },
-      { title: "Register", action: "Register" },
-      { title: "Delete User", action: "DeleteUser" },
-      { title: "User Profile", action: "UserProfile" },
+      { title: "Machine Daily Check", action: "daily-machine-check" },
+      { title: "Machine Down", action: "machine-down" },
+      { title: "Work Instruction", action: "work-instruction" },
+      { title: "Log Daily Machine", action: "log-dailymachine" },
+      { title: "Log Machine Down", action: "log-machinedown" },
+      { title: "Machine Down DashBoard", action: "machinedown-dashdoard" },
+      { title: "Output Dashboard", action: "output-dashboard" },
+      { title: "Register", action: "register" },
+      { title: "Delete User", action: "delete-user" },
+      { title: "User Profile", action: "user-profile" },
     ],
   };
 

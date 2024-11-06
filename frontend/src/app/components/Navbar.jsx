@@ -57,7 +57,7 @@ const Navbar = () => {
         },
       });
       if (password === "424" || password === "123") {
-        router.push("/MainMenu/MachineDownBoard");
+        router.push("/main-menu/machinedown-dashdoard");
       } else {
         Swal.fire({
           icon: "error",
@@ -66,7 +66,7 @@ const Navbar = () => {
         });
       }
     } else {
-      router.push("/MainMenu/MachineDownBoard");
+      router.push("/main-menu/machinedown-dashdoard");
     }
   };
 
@@ -82,12 +82,12 @@ const Navbar = () => {
             darkMode ? "text-white" : "text-gray-900"
           }`}
         >
-          <Link href="/MainMenu">Main Menu</Link>
+          <Link href="/main-menu">Main Menu</Link>
         </div>
         <ul className="flex space-x-6 items-center">
           <li>
             <Link
-              href="/MainMenu/OutPutDashBoard"
+              href="/main-menu/output-dashboard"
               className={`${
                 darkMode
                   ? "text-gray-300 hover:text-white"
@@ -107,7 +107,7 @@ const Navbar = () => {
               }`}
               onClick={handleMachineDownClick}
             >
-              Machine Down Board
+              Machine Down DashBoard
             </Link>
           </li>
           {isLoggedIn && (

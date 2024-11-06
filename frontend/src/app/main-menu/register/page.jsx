@@ -1,4 +1,4 @@
-// src/app/MainMenu/Register/page.jsx
+// src/app/main-menu/Register/page.jsx
 
 "use client";
 
@@ -46,7 +46,7 @@ function RegisterPage() {
         setSelectedRole(1);
         break;
       default:
-        router.push('/MainMenu');
+        router.push('/main-menu');
     }
   }, [user, router]);
 
@@ -71,8 +71,8 @@ function RegisterPage() {
         timer: 1500
       });
 
-      // Redirect to MainMenu after successful registration
-      router.push('/MainMenu');
+      // Redirect to main-menu after successful registration
+      router.push('/main-menu');
     } catch (error) {
       console.error('Registration error:', error.response?.data || error.message);
       setError(error.response?.data?.message || 'เกิดข้อผิดพลาดในการลงทะเบียน');

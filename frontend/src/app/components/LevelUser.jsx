@@ -93,7 +93,7 @@ function LevelUser({ userRole }) {
       <div className={`max-w-4xl w-full space-y-8 ${darkMode ? 'bg-gray-800' : 'bg-white'} p-8 rounded-3xl shadow-2xl transition-colors duration-300`}>
         <div className="flex justify-between items-center">
           <h2 className={`text-4xl font-extrabold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-            Main Menu
+            Menu
           </h2>
           <button
             onClick={() => setDarkMode(!darkMode)}

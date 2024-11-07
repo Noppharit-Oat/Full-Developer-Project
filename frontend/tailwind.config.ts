@@ -1,5 +1,4 @@
 // tailwind.config.js
-
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -14,9 +13,19 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      // เพิ่ม animation สำหรับ scanning line
+      keyframes: {
+        scan: {
+          "0%, 100%": { transform: "translateY(0%)" },
+          "50%": { transform: "translateY(100%)" },
+        },
+      },
+      animation: {
+        scan: "scan 2s linear infinite",
+      },
     },
   },
-  darkMode: 'class',
+  darkMode: "class",
   plugins: [],
 };
 

@@ -82,7 +82,7 @@ const Navbar = () => {
             darkMode ? "text-white" : "text-gray-900"
           }`}
         >
-          <Link href="/main-menu">Main Menu</Link>
+          <Link href="/main-menu">Menu</Link>
         </div>
         <ul className="flex space-x-6 items-center">
           <li>
@@ -94,7 +94,7 @@ const Navbar = () => {
                   : "text-gray-700 hover:text-gray-900"
               }`}
             >
-              Output Dashboard
+              Dashboard
             </Link>
           </li>
           <li>
@@ -107,7 +107,7 @@ const Navbar = () => {
               }`}
               onClick={handleMachineDownClick}
             >
-              Machine Down DashBoard
+              Downtime
             </Link>
           </li>
           {isLoggedIn && (

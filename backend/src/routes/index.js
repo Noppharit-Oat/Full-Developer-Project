@@ -3,9 +3,9 @@
 const express = require("express");
 const router = express.Router();
 const userRoutes = require("./userRoutes");
-// const machineCheckRoutes = require("./machineCheckRoutes");
+const machineCheckRoutes = require("./machineCheckRoutes");
 
 router.use("/", userRoutes);
-// router.use("/", machineCheckRoutes);
+router.use("/", machineCheckRoutes);
 
 module.exports = router;

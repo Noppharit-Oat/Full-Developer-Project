@@ -1,13 +1,12 @@
-// src/services/machineCheckService.js
-
-const db = require('../config/database');
+// src/services/machineCheckService.js.backup
+const db = require("../config/database");
 
 class MachineCheckService {
   // ดึงรายการ checklist ตาม frequency
   async getChecklist(frequency) {
     try {
       const query = `
-        SELECT 
+        SELECT
           ci.id,
           ci.name as item_name,
           ci.thai_name as item_thai_name,
@@ -19,7 +18,6 @@ class MachineCheckService {
         WHERE ci.frequency = $1
         ORDER BY cg.id, ci.id
       `;
-      
       const result = await db.query(query, [frequency]);
       return result.rows;
     } catch (error) {
@@ -31,14 +29,13 @@ class MachineCheckService {
   async saveCheckResult(checkData) {
     const client = await db.getClient();
     try {
-      await client.query('BEGIN');
+      await client.query("BEGIN");
 
       // 1. หา machine_id หรือสร้างใหม่
       let machineResult = await client.query(
-        'SELECT id FROM machines WHERE machine_name = $1 AND machine_no = $2',
+        "SELECT id FROM machines WHERE machine_name = $1 AND machine_no = $2",
         [checkData.machineName, checkData.machineNo]
       );
-
       let machineId;
       if (machineResult.rows.length === 0) {
         const newMachine = await client.query(
@@ -50,7 +47,7 @@ class MachineCheckService {
             checkData.machineNo,
             checkData.machineModel,
             checkData.machineCustomer,
-            checkData.machineFamily
+            checkData.machineFamily,
           ]
         );
         machineId = newMachine.rows[0].id;
@@ -77,16 +74,15 @@ class MachineCheckService {
             checkRecordId,
             item.id,
             item.status,
-            item.status === 'fail' ? item.issueDetail : null
+            item.status === "fail" ? item.issueDetail : null,
           ]
         );
       }
 
-      await client.query('COMMIT');
+      await client.query("COMMIT");
       return checkRecordId;
-
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw new Error(`Error saving check result: ${error.message}`);
     } finally {
       client.release();
@@ -117,7 +113,6 @@ class MachineCheckService {
         AND cr.check_date BETWEEN $2 AND $3
         ORDER BY cr.check_date DESC, ci.id
       `;
-      
       const result = await db.query(query, [machineId, startDate, endDate]);
       return result.rows;
     } catch (error) {

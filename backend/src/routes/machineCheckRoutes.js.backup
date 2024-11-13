@@ -1,0 +1,25 @@
+// src/routes/machineCheckRoutes.js
+const express = require("express");
+const router = express.Router();
+const machineCheckController = require("../controllers/machineCheckController");
+const authMiddleware = require("../middlewares/authMiddleware");
+
+// ดึงรายการ checklist
+router.get("/checklist", authMiddleware, (req, res) => {
+  // ตรวจสอบว่า controller ส่งข้อมูลได้หรือไม่
+  machineCheckController.getChecklist(req, res);
+});
+
+// บันทึกผลการตรวจเช็ค
+router.post("/check-result", authMiddleware, (req, res) => {
+  // ตรวจสอบว่า controller ส่งข้อมูลได้หรือไม่
+  machineCheckController.saveCheckResult(req, res);
+});
+
+// ดึงประวัติการตรวจเช็ค
+router.get("/history", authMiddleware, (req, res) => {
+  // ตรวจสอบว่า controller ส่งข้อมูลได้หรือไม่
+  machineCheckController.getCheckHistory(req, res);
+});
+
+module.exports = router;

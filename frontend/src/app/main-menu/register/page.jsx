@@ -4,31 +4,31 @@
 
 import React, { useState, useEffect } from "react";
 import { Sun, Moon, UserPlus } from "lucide-react";
-import { useAuth } from '../../../contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { useDarkMode } from '../../components/DarkModeProvider';
+import { useAuth } from "../../../contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { useDarkMode } from "../../components/DarkModeProvider";
 
 function RegisterPage() {
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [availableRoles, setAvailableRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState(null);
   const [formData, setFormData] = useState({
-    employee_id: '',
-    email: '',
-    phone_number: '',
-    first_name: '',
-    last_name: '',
-    password: ''
+    employee_id: "",
+    email: "",
+    phone_number: "",
+    first_name: "",
+    last_name: "",
+    password: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
@@ -46,21 +46,21 @@ function RegisterPage() {
         setSelectedRole(1);
         break;
       default:
-        router.push('/main-menu');
+        router.push("/main-menu");
     }
   }, [user, router]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
+    setError("");
 
     try {
-      const response = await axios.post('/api/register', {
+      const response = await axios.post("/api/register", {
         ...formData,
-        role: selectedRole
+        role: selectedRole,
       });
-      console.log('User registered:', response.data);
-      
+      console.log("User registered:", response.data);
+
       // Show success alert
       await Swal.fire({
         position: "center",
@@ -68,29 +68,32 @@ function RegisterPage() {
         title: "ลงทะเบียนสำเร็จ",
         text: "บัญชีผู้ใช้ถูกสร้างเรียบร้อยแล้ว",
         showConfirmButton: false,
-        timer: 1500
+        timer: 1500,
       });
 
       // Redirect to main-menu after successful registration
-      router.push('/main-menu');
+      router.push("/main-menu");
     } catch (error) {
-      console.error('Registration error:', error.response?.data || error.message);
-      setError(error.response?.data?.message || 'เกิดข้อผิดพลาดในการลงทะเบียน');
-      
+      console.error(
+        "Registration error:",
+        error.response?.data || error.message
+      );
+      setError(error.response?.data?.message || "เกิดข้อผิดพลาดในการลงทะเบียน");
+
       // Show error alert
       Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: error.response?.data?.message || 'เกิดข้อผิดพลาดในการลงทะเบียน',
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: error.response?.data?.message || "เกิดข้อผิดพลาดในการลงทะเบียน",
       });
     }
   };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -103,25 +106,67 @@ function RegisterPage() {
   }
 
   const fields = [
-    { id: "employee-no", name: "employee_id", type: "text", placeholder: "รหัสพนักงาน", required: true },
-    { id: "email", name: "email", type: "email", placeholder: "อีเมล", required: selectedRole !== 1 },
-    { id: "phone", name: "phone_number", type: "text", placeholder: "เบอร์โทรภายใน", required: selectedRole !== 1 },
-    { id: "firstname", name: "first_name", type: "text", placeholder: "ชื่อ", required: true },
-    { id: "lastname", name: "last_name", type: "text", placeholder: "นามสกุล", required: true },
-    { id: "password", name: "password", type: "password", placeholder: "รหัสผ่าน", required: true },
+    {
+      id: "employee-no",
+      name: "employee_id",
+      type: "text",
+      placeholder: "รหัสพนักงาน",
+      required: true,
+    },
+    {
+      id: "email",
+      name: "email",
+      type: "email",
+      placeholder: "อีเมล",
+      required: selectedRole !== 1,
+    },
+    {
+      id: "phone",
+      name: "phone_number",
+      type: "text",
+      placeholder: "เบอร์โทรภายใน",
+      required: selectedRole !== 1,
+    },
+    {
+      id: "firstname",
+      name: "first_name",
+      type: "text",
+      placeholder: "ชื่อ",
+      required: true,
+    },
+    {
+      id: "lastname",
+      name: "last_name",
+      type: "text",
+      placeholder: "นามสกุล",
+      required: true,
+    },
+    {
+      id: "password",
+      name: "password",
+      type: "password",
+      placeholder: "รหัสผ่าน",
+      required: true,
+    },
   ];
 
   return (
-    <div className={`min-h-screen flex items-center justify-center ${
-      darkMode ? "bg-gray-900" : "bg-gray-100"
-    } transition-colors duration-300 px-4 sm:px-6 lg:px-8`}>
-      <div className={`max-w-md w-full space-y-5 ${
-        darkMode ? "bg-gray-800" : "bg-white"
-      } p-10 rounded-3xl shadow-2xl transition-colors duration-300`}>
+    <div
+      className={`min-h-screen flex items-center justify-center ${
+        darkMode ? "bg-gray-900" : "bg-gray-100"
+      } transition-colors duration-300 px-4 sm:px-6 lg:px-8`}
+    >
+      <div
+        className={`max-w-md w-full space-y-5 ${
+          darkMode ? "bg-gray-800" : "bg-white"
+        } p-10 rounded-3xl shadow-2xl transition-colors duration-300`}
+      >
         <div className="flex justify-between items-center">
-          <h2 className={`text-3xl font-extrabold ${
-            darkMode ? "text-white" : "text-gray-900"
-          }`}>
+          <h2
+            className={`text-3xl font-extrabold ${
+              darkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
             สมัครสมาชิก
           </h2>
           <button
@@ -132,16 +177,23 @@ function RegisterPage() {
                 : "bg-gray-200 text-gray-700"
             }`}
           >
-            {darkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+            {darkMode ? (
+              <Sun className="h-6 w-6" />
+            ) : (
+              <Moon className="h-6 w-6" />
+            )}
           </button>
         </div>
         {error && <div className="text-red-500">{error}</div>}
         <form className="mt-10 space-y-2" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <div className="space-y-1">
-              <label htmlFor="role" className={`block text-sm font-medium ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}>
+              <label
+                htmlFor="role"
+                className={`block text-sm font-medium ${
+                  darkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
                 ระดับผู้ใช้งาน
               </label>
               <select
@@ -170,9 +222,12 @@ function RegisterPage() {
             </div>
             {fields.map((field) => (
               <div key={field.id} className="space-y-1">
-                <label htmlFor={field.id} className={`block text-sm font-medium ${
-                  darkMode ? "text-gray-300" : "text-gray-700"
-                }`}>
+                <label
+                  htmlFor={field.id}
+                  className={`block text-sm font-medium ${
+                    darkMode ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
                   {field.placeholder}
                 </label>
                 <input
@@ -202,11 +257,13 @@ function RegisterPage() {
               } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out`}
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                <UserPlus className={`h-5 w-5 ${
-                  darkMode
-                    ? "text-indigo-500 group-hover:text-indigo-400"
-                    : "text-blue-500 group-hover:text-blue-400"
-                }`} />
+                <UserPlus
+                  className={`h-5 w-5 ${
+                    darkMode
+                      ? "text-indigo-500 group-hover:text-indigo-400"
+                      : "text-blue-500 group-hover:text-blue-400"
+                  }`}
+                />
               </span>
               สมัครสมาชิก
             </button>

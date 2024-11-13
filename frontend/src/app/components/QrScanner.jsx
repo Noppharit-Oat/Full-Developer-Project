@@ -3,11 +3,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import QrReader from "react-qr-scanner";
+import dynamic from "next/dynamic";
 import { Camera, X, QrCode, FlipHorizontal } from "lucide-react";
 import { useDarkMode } from "./DarkModeProvider";
 
-const QrScanner = ({ onScanSuccess, buttonText = "Scan QR Code" }) => {
+// Dynamic import for QR Scanner to avoid SSR issues
+const QrReader = dynamic(() => import("react-qr-scanner"), {
+  ssr: false,
+});
+
+const QrScanner = ({ onScanSuccess, buttonText }) => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [error, setError] = useState(null);
   const [isClient, setIsClient] = useState(false);
@@ -28,8 +33,8 @@ const QrScanner = ({ onScanSuccess, buttonText = "Scan QR Code" }) => {
       }
 
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const cameras = devices.filter(device => device.kind === 'videoinput');
-      
+      const cameras = devices.filter((device) => device.kind === "videoinput");
+
       if (cameras.length === 0) {
         throw new Error("No cameras found");
       }
@@ -48,25 +53,33 @@ const QrScanner = ({ onScanSuccess, buttonText = "Scan QR Code" }) => {
 
   const handleError = (err) => {
     console.error("QR Scanner error:", err);
-    setError(new Error("Camera access failed. Please check camera permissions."));
+    setError(
+      new Error("Camera access failed. Please check camera permissions.")
+    );
   };
 
   const toggleCamera = () => {
     setIsCameraOpen(!isCameraOpen);
-    setError(null); // Reset error when toggling camera
+    setError(null);
   };
 
   const switchCamera = () => {
-    setFacingMode(prev => prev === "environment" ? "user" : "environment");
+    setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
   };
 
-  // Enhanced video constraints
+  // Video constraints configuration
   const videoConstraints = {
     facingMode,
     width: { min: 640, ideal: 1280, max: 1920 },
     height: { min: 480, ideal: 720, max: 1080 },
     aspectRatio: { ideal: 1 },
-    frameRate: { ideal: 30 }
+    frameRate: { ideal: 30 },
+  };
+
+  // Custom styles for QR Scanner
+  const scannerStyle = {
+    width: "100%",
+    height: "100%",
   };
 
   return (
@@ -88,7 +101,7 @@ const QrScanner = ({ onScanSuccess, buttonText = "Scan QR Code" }) => {
           ) : (
             <>
               <QrCode className="w-5 h-5" />
-              <span>{buttonText}</span>
+              <span>{buttonText || "Scan QR Code"}</span>
             </>
           )}
         </button>
@@ -106,7 +119,9 @@ const QrScanner = ({ onScanSuccess, buttonText = "Scan QR Code" }) => {
       {error && (
         <div className="p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-md">
           <p>Error: {error.message}</p>
-          <p className="text-sm mt-1">Try refreshing the page or checking camera permissions.</p>
+          <p className="text-sm mt-1">
+            Try refreshing the page or checking camera permissions.
+          </p>
         </div>
       )}
 
@@ -130,21 +145,17 @@ const QrScanner = ({ onScanSuccess, buttonText = "Scan QR Code" }) => {
               </div>
             </div>
           </div>
-          
-          {/* Actual QR Scanner */}
+
+          {/* QR Scanner Component */}
           <QrReader
             delay={300}
             onError={handleError}
             onScan={handleScan}
-            constraints={{
-              video: videoConstraints
-            }}
-            style={{
-              width: "100%",
-              height: "100%",
-            }}
+            constraints={{ video: videoConstraints }}
+            style={scannerStyle}
             className="rounded-lg"
-            chooseDeviceId={() => Promise.resolve(true)} // Allow device selection
+            legacyMode={false}
+            facingMode={facingMode}
           />
         </div>
       )}

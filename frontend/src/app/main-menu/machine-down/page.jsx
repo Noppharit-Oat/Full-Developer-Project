@@ -7,14 +7,16 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useDarkMode } from "../../components/DarkModeProvider";
 import QrScanner from "@/app/components/QrScanner";
 import { AlertTriangle, Clock } from "lucide-react";
+import { formatDate } from "../../components/dateFormatter";
 
 function MachineDownPage() {
   const { user } = useAuth();
   const { darkMode } = useDarkMode();
   const [machineName, setMachineName] = useState("");
   const [machineNo, setMachineNo] = useState("");
-  const [machineModel, setMachineModel] = useState(""); // เพิ่ม state สำหรับ Model
-  const [machineCustomer, setMachineCustomer] = useState(""); // เพิ่ม state สำหรับ Customer
+  const [machineModel, setMachineModel] = useState("");
+  const [machineCustomer, setMachineCustomer] = useState("");
+  const [machineFamily, setMachineFamily] = useState("");
   const [problemType, setProblemType] = useState("");
   const [problemDetail, setProblemDetail] = useState("");
   const [error, setError] = useState(null);
@@ -63,15 +65,16 @@ function MachineDownPage() {
   const handleQrCodeScanned = (scannedData) => {
     try {
       const pattern =
-        /Machine Name: \[(.*?)\] ,Machine No: \[(.*?)\] ,Model: \[(.*?)\] ,Customer: \[(.*?)\]/i;
+        /Machine Name: \[(.*?)\] ,Machine No: \[(.*?)\] ,Model: \[(.*?)\] ,Customer: \[(.*?)\] ,Family: \[(.*?)\]/i;
       const matches = scannedData.match(pattern);
 
-      if (matches && matches.length === 5) {
-        const [_, name, no, model, customer] = matches;
-        setMachineName(name.toLowerCase());
+      if (matches && matches.length === 6) {
+        const [_, name, no, model, customer, family] = matches;
+        setMachineName(name); // ลบ .toLowerCase() ออก
         setMachineNo(no);
         setMachineModel(model);
         setMachineCustomer(customer);
+        setMachineFamily(family);
         setError(null);
       } else {
         setError(new Error("Invalid QR code format"));
@@ -87,6 +90,7 @@ function MachineDownPage() {
       machineNo,
       machineModel,
       machineCustomer,
+      machineFamily,
       problemType,
       problemDetail,
       reportedBy: user?.id,
@@ -120,7 +124,7 @@ function MachineDownPage() {
           </div>
           <div className="flex items-center space-x-4">
             <Clock className="w-6 h-6" />
-            <span>{new Date().toLocaleDateString()}</span>
+            <span>{formatDate(new Date())}</span>
           </div>
         </div>
 
@@ -179,6 +183,20 @@ function MachineDownPage() {
                   className={inputClass}
                   value={machineCustomer}
                   placeholder="Customer will appear after scan"
+                  readOnly
+                />
+              </div>
+
+              {/* Family */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Family:
+                </label>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={machineFamily}
+                  placeholder="Family will appear after scan"
                   readOnly
                 />
               </div>

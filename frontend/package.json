@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.1",
     "@reduxjs/toolkit": "^2.2.7",
+    "@vercel/postgres": "^0.10.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "axios": "^1.7.7",

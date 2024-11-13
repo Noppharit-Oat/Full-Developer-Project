@@ -1,0 +1,52 @@
+// src/controllers/machineCheckController.js
+
+const machineCheckService = require('../services/machineCheckService');
+
+class MachineCheckController {
+  async getChecklist(req, res) {
+    try {
+      const frequency = req.query.frequency || 'daily';
+      const checklist = await machineCheckService.getChecklist(frequency);
+      res.json({ success: true, data: checklist });
+    } catch (error) {
+      console.error('Error in getChecklist:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async saveCheckResult(req, res) {
+    try {
+      const checkData = {
+        ...req.body,
+        userId: req.user.id // จาก auth middleware
+      };
+
+      const checkRecordId = await machineCheckService.saveCheckResult(checkData);
+      res.json({ 
+        success: true, 
+        message: 'บันทึกผลการตรวจเช็คเรียบร้อย',
+        checkRecordId 
+      });
+    } catch (error) {
+      console.error('Error in saveCheckResult:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getCheckHistory(req, res) {
+    try {
+      const { machineId, startDate, endDate } = req.query;
+      const history = await machineCheckService.getCheckHistory(
+        machineId,
+        startDate,
+        endDate
+      );
+      res.json({ success: true, data: history });
+    } catch (error) {
+      console.error('Error in getCheckHistory:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+}
+
+module.exports = new MachineCheckController();

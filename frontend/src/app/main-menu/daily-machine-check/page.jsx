@@ -114,7 +114,7 @@ function MachineDailyCheckPage() {
         }
 
         setCheckData({
-          checklist: data.items.map((item) => ({
+          checklist: data.data.map((item) => ({
             id: item.id,
             item: item.item_name,
             thaiItem: item.item_thai_name,
@@ -255,19 +255,21 @@ function MachineDailyCheckPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify({
-          machineName,
-          machineNo,
-          machineModel,
-          machineCustomer,
-          machineFamily,
-          checklist: checkData.checklist.map((item) => ({
-            checklist_item_id: item.id,
-            status: item.status,
-            issue_detail: item.issueDetail || "",
-          })),
-          userId: user?.id,
-          timestamp: new Date().toISOString(),
+          machine_id: machineNo,
+          checklist_item_id: checkData.checklist.map((item) => item.id),
+          user_id: user?.id,
+          machine_name: machineName,
+          machine_no: machineNo,
+          model: machineModel,
+          customer: machineCustomer,
+          family: machineFamily,
+          status: checkData.checklist.map((item) => item.status),
+          issue_detail: checkData.checklist.map(
+            (item) => item.issueDetail || ""
+          ),
+          checked_at: new Date().toISOString(),
         }),
       });
 

@@ -7,6 +7,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useDarkMode } from "../../components/DarkModeProvider";
 import QrScanner from "@/app/components/QrScanner";
 import { formatDate } from "../../components/dateFormatter";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   XCircle,
@@ -22,8 +23,10 @@ import {
 import Swal from "sweetalert2";
 
 function MachineDailyCheckPage() {
-  const { user } = useAuth();
+  const { isLoggedIn, user, checkLoginStatus } = useAuth();
   const { darkMode } = useDarkMode();
+  const router = useRouter();
+
   const [machineName, setMachineName] = useState("");
   const [machineNo, setMachineNo] = useState("");
   const [machineModel, setMachineModel] = useState("");
@@ -35,6 +38,13 @@ function MachineDailyCheckPage() {
   const [checkData, setCheckData] = useState({
     checklist: [],
   });
+
+  // Check authentication
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/login");
+    }
+  }, [isLoggedIn, router]);
 
   // Styling classes
   const cardClass = `p-6 rounded-lg shadow-md ${
@@ -56,19 +66,42 @@ function MachineDailyCheckPage() {
   // ดึงข้อมูล checklist จาก API
   useEffect(() => {
     const fetchChecklist = async () => {
-      if (!showChecklist || !machineName || !machineModel) return;
+      if (!showChecklist || !machineName || !machineModel || !isLoggedIn)
+        return;
 
       try {
         setLoading(true);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+
         const url = new URL("/api/checklist", window.location.origin);
         url.searchParams.set("frequency", "daily");
         url.searchParams.set("machineName", machineName);
         url.searchParams.set("model", machineModel);
 
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
         const data = await response.json();
 
-        if (!response.ok) throw new Error(data.error);
+        if (!response.ok) {
+          if (response.status === 401) {
+            await Swal.fire({
+              icon: "error",
+              title: "Session หมดอายุ",
+              text: "กรุณาเข้าสู่ระบบใหม่",
+            });
+            router.push("/login");
+            return;
+          }
+          throw new Error(data.message || "Failed to fetch checklist");
+        }
 
         if (data.data.length === 0) {
           await Swal.fire({
@@ -81,7 +114,7 @@ function MachineDailyCheckPage() {
         }
 
         setCheckData({
-          checklist: data.data.map((item) => ({
+          checklist: data.items.map((item) => ({
             id: item.id,
             item: item.item_name,
             thaiItem: item.item_thai_name,
@@ -97,7 +130,7 @@ function MachineDailyCheckPage() {
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาด",
-          text: "ไม่สามารถโหลดรายการตรวจเช็คได้",
+          text: error.message || "ไม่สามารถโหลดรายการตรวจเช็คได้",
         });
         setShowChecklist(false);
       } finally {
@@ -106,7 +139,7 @@ function MachineDailyCheckPage() {
     };
 
     fetchChecklist();
-  }, [showChecklist, machineName, machineModel]);
+  }, [showChecklist, machineName, machineModel, isLoggedIn, router]);
 
   const handleQrCodeScanned = (scannedData) => {
     try {
@@ -122,13 +155,23 @@ function MachineDailyCheckPage() {
         setMachineCustomer(customer);
         setMachineFamily(family);
         setError(null);
-        setShowChecklist(false); // รีเซ็ต checklist เมื่อสแกนเครื่องใหม่
-        setCheckData({ checklist: [] }); // รีเซ็ตข้อมูล checklist
+        setShowChecklist(false);
+        setCheckData({ checklist: [] });
       } else {
         setError(new Error("Invalid QR code format"));
+        Swal.fire({
+          icon: "error",
+          title: "QR Code ไม่ถูกต้อง",
+          text: "รูปแบบ QR Code ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง",
+        });
       }
     } catch (err) {
       setError(new Error("Error processing QR code"));
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: "ไม่สามารถประมวลผล QR Code ได้",
+      });
     }
   };
 
@@ -151,11 +194,30 @@ function MachineDailyCheckPage() {
   };
 
   const handleLoadChecklist = () => {
+    if (!isLoggedIn) {
+      Swal.fire({
+        icon: "error",
+        title: "กรุณาเข้าสู่ระบบ",
+        text: "กรุณาเข้าสู่ระบบก่อนโหลดรายการตรวจเช็ค",
+      });
+      router.push("/login");
+      return;
+    }
     setShowChecklist(true);
   };
 
   const handleSubmit = async () => {
     try {
+      if (!isLoggedIn) {
+        await Swal.fire({
+          icon: "error",
+          title: "กรุณาเข้าสู่ระบบ",
+          text: "กรุณาเข้าสู่ระบบก่อนทำการบันทึกข้อมูล",
+        });
+        router.push("/login");
+        return;
+      }
+
       // Validate that all items have been checked
       const uncheckedItems = checkData.checklist.filter(
         (item) => item.status === null
@@ -182,9 +244,15 @@ function MachineDailyCheckPage() {
         return;
       }
 
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
       const response = await fetch("/api/daily-check", {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -193,7 +261,11 @@ function MachineDailyCheckPage() {
           machineModel,
           machineCustomer,
           machineFamily,
-          checklist: checkData.checklist,
+          checklist: checkData.checklist.map((item) => ({
+            checklist_item_id: item.id,
+            status: item.status,
+            issue_detail: item.issueDetail || "",
+          })),
           userId: user?.id,
           timestamp: new Date().toISOString(),
         }),
@@ -201,7 +273,18 @@ function MachineDailyCheckPage() {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error);
+      if (!response.ok) {
+        if (response.status === 401) {
+          await Swal.fire({
+            icon: "error",
+            title: "Session หมดอายุ",
+            text: "กรุณาเข้าสู่ระบบใหม่",
+          });
+          router.push("/login");
+          return;
+        }
+        throw new Error(data.message || "Failed to submit check");
+      }
 
       await Swal.fire({
         icon: "success",

@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 
 const findUserByEmployeeId = async (employeeId) => {
   const result = await pool.query(
-    'SELECT * FROM "Users" WHERE employee_id = $1',
+    'SELECT * FROM "users" WHERE employee_id = $1',
     [employeeId]
   );
   return result.rows[0];
@@ -24,7 +24,7 @@ const createUser = async (userData) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const result = await pool.query(
-    'INSERT INTO "Users" (employee_id, password_hash, role, first_name, last_name, email, phone_number) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+    'INSERT INTO "users" (employee_id, password_hash, role, first_name, last_name, email, phone_number) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
     [
       employee_id,
       hashedPassword,

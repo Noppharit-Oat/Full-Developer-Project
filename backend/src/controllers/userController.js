@@ -16,7 +16,7 @@ const login = async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT * FROM "Users" WHERE employee_id = $1',
+      'SELECT * FROM "users" WHERE employee_id = $1',
       [employee_id]
     );
 
@@ -88,7 +88,7 @@ const register = async (req, res) => {
 
   try {
     const userExists = await pool.query(
-      'SELECT * FROM "Users" WHERE employee_id = $1 OR email = $2',
+      'SELECT * FROM "users" WHERE employee_id = $1 OR email = $2',
       [employee_id, email]
     );
 
@@ -101,7 +101,7 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      'INSERT INTO "Users" (employee_id, password_hash, role, first_name, last_name, email, phone_number) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      'INSERT INTO "users" (employee_id, password_hash, role, first_name, last_name, email, phone_number) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
       [
         employee_id,
         hashedPassword,
@@ -149,7 +149,7 @@ const deleteUser = async (req, res) => {
 
   try {
     const userExists = await pool.query(
-      'SELECT * FROM "Users" WHERE employee_id = $1',
+      'SELECT * FROM "users" WHERE employee_id = $1',
       [employee_id]
     );
 
@@ -157,7 +157,7 @@ const deleteUser = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    await pool.query('DELETE FROM "Users" WHERE employee_id = $1', [
+    await pool.query('DELETE FROM "users" WHERE employee_id = $1', [
       employee_id,
     ]);
 
@@ -181,7 +181,7 @@ const updateProfile = async (req, res) => {
 
   try {
     const result = await pool.query(
-      'UPDATE "Users" SET first_name = $1, last_name = $2, email = $3, phone_number = $4 WHERE employee_id = $5 RETURNING *',
+      'UPDATE "users" SET first_name = $1, last_name = $2, email = $3, phone_number = $4 WHERE employee_id = $5 RETURNING *',
       [first_name, last_name, email, phone_number, employee_id]
     );
 
@@ -203,9 +203,39 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// เพิ่มฟังก์ชัน getProfile
+const getProfile = async (req, res) => {
+  const { employee_id } = req.user; // ได้จาก middleware authenticateToken
+
+  try {
+    const result = await pool.query(
+      'SELECT employee_id, role, first_name, last_name, email, phone_number FROM "users" WHERE employee_id = $1',
+      [employee_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({
+      message: "Profile retrieved successfully.",
+      user: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error retrieving profile:", error);
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
+  }
+};
+
+// แก้ไข module.exports ให้รวม getProfile
 module.exports = {
   login,
   register,
   deleteUser,
-  updateProfile, // เพิ่มฟังก์ชัน updateProfile ตรงนี้
+  updateProfile,
+  getProfile,
 };

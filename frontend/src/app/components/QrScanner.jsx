@@ -76,12 +76,6 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
     frameRate: { ideal: 30 },
   };
 
-  // Custom styles for QR Scanner
-  const scannerStyle = {
-    width: "100%",
-    height: "100%",
-  };
-
   return (
     <div className="flex flex-col items-center space-y-4">
       <div className="flex space-x-2">
@@ -126,7 +120,7 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
       )}
 
       {isClient && !error && isCameraOpen && (
-        <div className="relative w-full max-w-md aspect-square">
+        <div className="relative w-full max-w-md aspect-square bg-black rounded-lg overflow-hidden">
           {/* QR Scanner Overlay */}
           <div className="absolute inset-0 z-10">
             <div className="h-full w-full flex items-center justify-center">
@@ -147,16 +141,17 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
           </div>
 
           {/* QR Scanner Component */}
-          <QrReader
-            delay={300}
-            onError={handleError}
-            onScan={handleScan}
-            constraints={{ video: videoConstraints }}
-            style={scannerStyle}
-            className="rounded-lg"
-            legacyMode={false}
-            facingMode={facingMode}
-          />
+          <div className="w-full h-full">
+            <QrReader
+              delay={300}
+              onError={handleError}
+              onScan={handleScan}
+              constraints={{ video: videoConstraints }}
+              className="w-full h-full object-cover"
+              legacyMode={false}
+              facingMode={facingMode}
+            />
+          </div>
         </div>
       )}
     </div>

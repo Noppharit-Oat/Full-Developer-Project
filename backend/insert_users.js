@@ -20,13 +20,18 @@ const users = [
   { employee_id: '066666', password: '66666', role: 6, first_name: 'Super SS6', last_name: 'Super PP6', email: 'Super SSPP6@lpn.hanabk.th.com', phone_number: '456' }
 ];
 
-async function insertUsers() {แสำ
+async function insertUsers() {
   for (const user of users) {
     const hashedPassword = await bcrypt.hash(user.password, 10);
+    
+    // กำหนดค่า email และ phone_number ให้เป็น NULL หาก role = 1
+    const email = (user.role === 1) ? null : user.email;
+    const phone_number = (user.role === 1) ? null : user.phone_number;
+    
     try {
       await pool.query(
-        'INSERT INTO "Users" (employee_id, password_hash, role, first_name, last_name, email, phone_number, "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())',
-        [user.employee_id, hashedPassword, user.role, user.first_name, user.last_name, user.email, user.phone_number]
+        'INSERT INTO "users" (employee_id, password, role, first_name, last_name, email, phone_number, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())',
+        [user.employee_id, hashedPassword, user.role, user.first_name, user.last_name, email, phone_number]
       );
       console.log(`Inserted user: ${user.employee_id}`);
     } catch (error) {

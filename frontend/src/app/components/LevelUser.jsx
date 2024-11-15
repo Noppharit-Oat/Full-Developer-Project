@@ -14,6 +14,7 @@ import {
   BarChart2,
   Sun,
   Moon,
+  LogIn,
   PauseCircle,
 } from "lucide-react";
 import { useDarkMode } from "./DarkModeProvider";
@@ -54,12 +55,20 @@ function LevelUser({ userRole }) {
         return <PauseCircle className="h-6 w-6" />;
       case "delete-user":
         return <Trash2 className="h-6 w-6" />;
+      case "login":
+        return <LogIn className="h-6 w-6" />;
       default:
         return <ChevronRight className="h-6 w-6" />;
     }
   };
 
   const menuItems = {
+    0: [
+      { title: "Machine Daily Check", path: "daily-machine-check" },
+      { title: "Machine Down", path: "machine-down" },
+      { title: "Work Instruction", path: "work-instruction" },
+      { title: "Log Inuser", path: "login" },
+    ],
     1: [
       { title: "Machine Daily Check", path: "daily-machine-check" },
       { title: "Machine Down", path: "machine-down" },

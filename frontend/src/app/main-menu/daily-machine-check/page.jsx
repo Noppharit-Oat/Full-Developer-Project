@@ -19,11 +19,12 @@ import {
   BuildingIcon,
   BoxesIcon,
   Loader2,
+  Users,
 } from "lucide-react";
 import Swal from "sweetalert2";
 
 function MachineDailyCheckPage() {
-  const { isLoggedIn, user, checkLoginStatus } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const { darkMode } = useDarkMode();
   const router = useRouter();
 
@@ -32,19 +33,13 @@ function MachineDailyCheckPage() {
   const [machineModel, setMachineModel] = useState("");
   const [machineCustomer, setMachineCustomer] = useState("");
   const [machineFamily, setMachineFamily] = useState("");
+  const [employeeId, setEmployeeId] = useState(user?.employee_id || "");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
   const [checkData, setCheckData] = useState({
     checklist: [],
   });
-
-  // Check authentication
-  useEffect(() => {
-    if (!isLoggedIn) {
-      router.push("/login");
-    }
-  }, [isLoggedIn, router]);
 
   // Styling classes
   const cardClass = `p-6 rounded-lg shadow-md ${
@@ -63,47 +58,77 @@ function MachineDailyCheckPage() {
       : "bg-gray-100 border-gray-300 text-gray-900"
   } focus:outline-none cursor-not-allowed`;
 
-  // ดึงข้อมูล checklist จาก API
+  // ฟังก์ชันตรวจสอบ employeeId
+  const validateEmployeeId = () => {
+    if (!employeeId.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาระบุรหัสพนักงาน",
+        text: "กรุณาใส่รหัสพนักงานก่อนทำการตรวจเช็ค",
+      });
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
     const fetchChecklist = async () => {
-      if (!showChecklist || !machineName || !machineModel || !isLoggedIn)
-        return;
+      if (!showChecklist || !machineName || !machineModel) return;
 
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("Authentication token not found");
-        }
 
-        const url = new URL("/api/checklist", window.location.origin);
+        const baseUrl =
+          process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+
+        const url = new URL(
+          "/api/checklist", // ใช้ Next.js API Route path เสมอ
+          baseUrl
+        );
+
+        // เพิ่ม query parameters
         url.searchParams.set("frequency", "daily");
         url.searchParams.set("machineName", machineName);
         url.searchParams.set("model", machineModel);
 
+        const headers = {
+          "Content-Type": "application/json",
+        };
+
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
         const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers: headers,
+          // เพิ่ม error handling สำหรับ network errors
+          signal: AbortSignal.timeout(10000), // timeout 10 วินาที
         });
+
+        // ตรวจสอบ content type
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Invalid response format. Expected JSON.");
+        }
+
+        if (!response.ok) {
+          // ดัก HTTP errors (4xx, 5xx)
+          if (response.status === 404) {
+            throw new Error(
+              "Checklist not found. Please verify the machine details."
+            );
+          } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(
+              errorData.message || `Server error: ${response.status}`
+            );
+          }
+        }
 
         const data = await response.json();
 
-        if (!response.ok) {
-          if (response.status === 401) {
-            await Swal.fire({
-              icon: "error",
-              title: "Session หมดอายุ",
-              text: "กรุณาเข้าสู่ระบบใหม่",
-            });
-            router.push("/login");
-            return;
-          }
-          throw new Error(data.message || "Failed to fetch checklist");
-        }
-
-        if (data.data.length === 0) {
+        if (data.total === 0) {
           await Swal.fire({
             icon: "warning",
             title: "ไม่พบรายการตรวจเช็ค",
@@ -114,23 +139,34 @@ function MachineDailyCheckPage() {
         }
 
         setCheckData({
-          checklist: data.data.map((item) => ({
-            id: item.id,
-            item: item.item_name,
-            thaiItem: item.item_thai_name,
-            groupName: item.group_name,
-            groupThaiName: item.group_thai_name,
-            status: null,
-            issueDetail: "",
-          })),
+          checklist: data.groups.flatMap((group) =>
+            group.items.map((item) => ({
+              id: item.id,
+              item: item.item_name,
+              thaiItem: item.item_thai_name,
+              groupName: group.group.name,
+              groupThaiName: group.group.thai_name,
+              status: null,
+              issueDetail: "",
+            }))
+          ),
         });
       } catch (error) {
         console.error("Error fetching checklist:", error);
-        setError(error.message);
+
+        // แสดง error message ที่เหมาะสมตาม error type
+        let errorMessage = "ไม่สามารถโหลดรายการตรวจเช็คได้";
+        if (error.name === "AbortError") {
+          errorMessage = "การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง";
+        } else if (error.message.includes("Invalid response format")) {
+          errorMessage = "รูปแบบข้อมูลไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ";
+        }
+
+        setError(error);
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาด",
-          text: error.message || "ไม่สามารถโหลดรายการตรวจเช็คได้",
+          text: errorMessage,
         });
         setShowChecklist(false);
       } finally {
@@ -139,7 +175,7 @@ function MachineDailyCheckPage() {
     };
 
     fetchChecklist();
-  }, [showChecklist, machineName, machineModel, isLoggedIn, router]);
+  }, [showChecklist, machineName, machineModel]);
 
   const handleQrCodeScanned = (scannedData) => {
     try {
@@ -194,13 +230,7 @@ function MachineDailyCheckPage() {
   };
 
   const handleLoadChecklist = () => {
-    if (!isLoggedIn) {
-      Swal.fire({
-        icon: "error",
-        title: "กรุณาเข้าสู่ระบบ",
-        text: "กรุณาเข้าสู่ระบบก่อนโหลดรายการตรวจเช็ค",
-      });
-      router.push("/login");
+    if (!isLoggedIn && !validateEmployeeId()) {
       return;
     }
     setShowChecklist(true);
@@ -208,13 +238,7 @@ function MachineDailyCheckPage() {
 
   const handleSubmit = async () => {
     try {
-      if (!isLoggedIn) {
-        await Swal.fire({
-          icon: "error",
-          title: "กรุณาเข้าสู่ระบบ",
-          text: "กรุณาเข้าสู่ระบบก่อนทำการบันทึกข้อมูล",
-        });
-        router.push("/login");
+      if (!isLoggedIn && !validateEmployeeId()) {
         return;
       }
 
@@ -245,21 +269,18 @@ function MachineDailyCheckPage() {
       }
 
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
 
       const response = await fetch("/api/daily-check", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token ? `Bearer ${token}` : undefined,
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify({
           machine_id: machineNo,
           checklist_item_id: checkData.checklist.map((item) => item.id),
-          user_id: user?.id,
+          user_id: user?.id || null,
+          employee_id: isLoggedIn ? user?.employee_id : employeeId,
           machine_name: machineName,
           machine_no: machineNo,
           model: machineModel,
@@ -276,15 +297,6 @@ function MachineDailyCheckPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 401) {
-          await Swal.fire({
-            icon: "error",
-            title: "Session หมดอายุ",
-            text: "กรุณาเข้าสู่ระบบใหม่",
-          });
-          router.push("/login");
-          return;
-        }
         throw new Error(data.message || "Failed to submit check");
       }
 
@@ -480,6 +492,55 @@ function MachineDailyCheckPage() {
                     readOnly
                   />
                 </div>
+
+                {/* Employee ID Card (แสดงเมื่อไม่ได้ login) */}
+                {!isLoggedIn && (
+                  <div
+                    className={`p-4 rounded-lg border ${
+                      darkMode
+                        ? "bg-gray-800 border-gray-700"
+                        : "bg-white border-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="w-5 h-5 text-blue-500" />
+                      <label className="font-medium">รหัสพนักงาน</label>
+                    </div>
+                    <input
+                      type="text"
+                      value={employeeId}
+                      onChange={(e) => setEmployeeId(e.target.value)}
+                      placeholder="กรุณาใส่รหัสพนักงาน"
+                      className={`w-full px-3 py-2 border rounded-md ${
+                        darkMode
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-white border-gray-300 text-gray-900"
+                      } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                    />
+                  </div>
+                )}
+
+                {/* Employee ID Display (แสดงเมื่อ login แล้ว) */}
+                {isLoggedIn && user?.employee_id && (
+                  <div
+                    className={`p-4 rounded-lg border ${
+                      darkMode
+                        ? "bg-gray-800 border-gray-700"
+                        : "bg-white border-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="w-5 h-5 text-blue-500" />
+                      <label className="font-medium">รหัสพนักงาน</label>
+                    </div>
+                    <input
+                      type="text"
+                      className={inputClass}
+                      value={user.employee_id}
+                      readOnly
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Load Checklist Button */}
@@ -514,7 +575,7 @@ function MachineDailyCheckPage() {
             </div>
           )}
 
-          {/* Checklist - แสดงเมื่อกดปุ่มโหลด */}
+          {/* Checklist */}
           {showChecklist && !loading && checkData.checklist.length > 0 && (
             <>
               <div className="space-y-4 mt-6">
@@ -596,7 +657,6 @@ function MachineDailyCheckPage() {
               <button
                 onClick={handleSubmit}
                 className={`${buttonClass} w-full mt-6`}
-                disabled={!machineName || !machineNo}
               >
                 บันทึกผลการตรวจเช็ค
               </button>

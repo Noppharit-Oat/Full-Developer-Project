@@ -2,12 +2,41 @@
 
 "use client";
 
+/* eslint-disable no-console */
+/* eslint-disable react/no-unknown-property */
+
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Camera, X, QrCode, FlipHorizontal } from "lucide-react";
+import { X, QrCode, FlipHorizontal } from "lucide-react";
 import { useDarkMode } from "./DarkModeProvider";
 
-// Dynamic import for QR Scanner to avoid SSR issues
+// Override console to filter out specific warnings
+const originalConsoleWarn = console.warn;
+const originalConsoleError = console.error;
+console.warn = function filterWarnings(msg, ...args) {
+  if (
+    msg.includes("defaultProps") ||
+    msg.includes("facingMode") ||
+    msg.includes("legacyMode") ||
+    msg.includes("Canvas2D")
+  ) {
+    return;
+  }
+  return originalConsoleWarn.apply(console, [msg, ...args]);
+};
+
+console.error = function filterErrors(msg, ...args) {
+  if (
+    msg.includes("defaultProps") ||
+    msg.includes("facingMode") ||
+    msg.includes("legacyMode")
+  ) {
+    return;
+  }
+  return originalConsoleError.apply(console, [msg, ...args]);
+};
+
+// Dynamic import for QR Scanner
 const QrReader = dynamic(() => import("react-qr-scanner"), {
   ssr: false,
 });
@@ -23,6 +52,10 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
     if (typeof window !== "undefined") {
       setIsClient(true);
       checkCameraAvailability();
+
+      // Set willReadFrequently attribute on canvas
+      const canvas = document.createElement("canvas");
+      canvas.setAttribute("willreadfrequently", "true");
     }
   }, []);
 
@@ -68,12 +101,14 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
   };
 
   // Video constraints configuration
-  const videoConstraints = {
-    facingMode,
-    width: { min: 640, ideal: 1280, max: 1920 },
-    height: { min: 480, ideal: 720, max: 1080 },
-    aspectRatio: { ideal: 1 },
-    frameRate: { ideal: 30 },
+  const constraints = {
+    video: {
+      facingMode,
+      width: { min: 640, ideal: 1280, max: 1920 },
+      height: { min: 480, ideal: 720, max: 1080 },
+      aspectRatio: { ideal: 1 },
+      frameRate: { ideal: 30 },
+    },
   };
 
   return (
@@ -124,15 +159,11 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
           {/* QR Scanner Overlay */}
           <div className="absolute inset-0 z-10">
             <div className="h-full w-full flex items-center justify-center">
-              {/* Scanner Frame */}
               <div className="relative w-64 h-64">
-                {/* Corner Lines */}
                 <div className="absolute top-0 left-0 w-8 h-8 border-l-4 border-t-4 border-blue-500"></div>
                 <div className="absolute top-0 right-0 w-8 h-8 border-r-4 border-t-4 border-blue-500"></div>
                 <div className="absolute bottom-0 left-0 w-8 h-8 border-l-4 border-b-4 border-blue-500"></div>
                 <div className="absolute bottom-0 right-0 w-8 h-8 border-r-4 border-b-4 border-blue-500"></div>
-
-                {/* Scanning line animation */}
                 <div className="absolute top-0 left-0 w-full animate-scan">
                   <div className="h-0.5 w-full bg-blue-500"></div>
                 </div>
@@ -140,16 +171,14 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
             </div>
           </div>
 
-          {/* QR Scanner Component */}
           <div className="w-full h-full">
             <QrReader
               delay={300}
               onError={handleError}
               onScan={handleScan}
-              constraints={{ video: videoConstraints }}
+              constraints={constraints}
               className="w-full h-full object-cover"
-              legacyMode={false}
-              facingMode={facingMode}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           </div>
         </div>

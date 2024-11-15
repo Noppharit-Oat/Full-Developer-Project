@@ -9,18 +9,21 @@ const {
   createChecklistGroup,
   updateChecklistGroup,
   deleteChecklistGroup,
-
   // Model Checklist Items
   getAllModelChecklistItems,
   getModelChecklistItemById,
   createModelChecklistItem,
   updateModelChecklistItem,
   deleteModelChecklistItem,
-
   // Inspection History
   createInspectionHistory,
   getInspectionHistory,
+  // เพิ่ม import getChecklistByParams
+  getChecklistByParams,
 } = require("../controllers/checklistController");
+
+// เพิ่ม route สำหรับ query checklist
+router.get("/", authenticateToken, getChecklistByParams);
 
 // Checklist Groups Routes
 router.get("/groups", authenticateToken, getAllChecklistGroups);

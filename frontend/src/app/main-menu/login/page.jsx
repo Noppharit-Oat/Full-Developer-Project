@@ -1,11 +1,11 @@
-// src/app/login/page.jsx
+// src/app/min-menu/login/page.jsx
 
 "use client";
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useDarkMode } from "../components/DarkModeProvider";
-import { useAuth } from "../../contexts/AuthContext";
+import { useDarkMode } from "../../components/DarkModeProvider";
+import { useAuth } from "../../../contexts/AuthContext";
 import { Sun, Moon, Lock } from "lucide-react";
 import Swal from "sweetalert2";
 

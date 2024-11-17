@@ -2,17 +2,21 @@
 
 const express = require("express");
 const router = express.Router();
+
+// Import routes
 const userRoutes = require("./userRoutes");
 const machineRoutes = require("./machineRoutes");
 const checklistRoutes = require("./checklistRoutes");
 const publicRoutes = require("./publicRoutes");
+const dailyCheckRoutes = require("./dailyCheckRoutes");
 
-// Public routes ต้องอยู่ก่อน protected routes
+// Public routes first
 router.use("/public", publicRoutes);
 
-// Protected routes
-router.use("/", userRoutes);
+// Then protected routes
+router.use("/users", userRoutes);
 router.use("/machines", machineRoutes);
 router.use("/checklist", checklistRoutes);
+router.use("/daily-check", dailyCheckRoutes);
 
 module.exports = router;

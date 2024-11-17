@@ -3,43 +3,66 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
-const BACKEND_URL = process.env.BACKEND_URL || "https://172.31.71.125";
+const BACKEND_URL = process.env.BACKEND_URL || "http://172.31.71.125:5000";
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const authHeader = req.headers.get("authorization");
 
-    if (!authHeader) {
-      return NextResponse.json(
-        { success: false, message: "Authorization token is required" },
-        { status: 401 }
-      );
+    // กรณี Machine Idle
+    if (body.maintenance_type === "mc_idle") {
+      const idleData = {
+        machine_name: body.machine_name,
+        machine_no: body.machine_no,
+        model: body.model,
+        customer: body.customer,
+        family: body.family,
+        maintenance_type: "mc_idle",
+        employee_id: body.employee_id,
+        checked_at: body.checked_at,
+      };
+
+      // เลือก endpoint ตาม auth
+      const endpoint = authHeader
+        ? `${BACKEND_URL}/api/checklist/inspection/idle`
+        : `${BACKEND_URL}/api/public/checklist/inspection/idle`;
+
+      const response = await axios.post(endpoint, idleData, {
+        headers: authHeader ? { Authorization: authHeader } : {},
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Machine idle status recorded successfully",
+      });
     }
 
-    // แปลงข้อมูลให้ตรงกับ format ที่ backend ต้องการ
-    const inspectionData = body.checklist.map((item) => ({
-      checklist_item_id: item.id,
-      machine_name: body.machineName,
-      machine_no: body.machineNo,
-      model: body.machineModel,
-      customer: body.machineCustomer,
-      family: body.machineFamily,
-      status: item.status,
-      issue_detail: item.issueDetail || "",
-      user_id: body.userId,
-    }));
+    // กรณีตรวจเช็คปกติ
+    const inspectionData = {
+      machine_name: body.machine_name,
+      machine_no: body.machine_no,
+      model: body.model,
+      customer: body.customer,
+      family: body.family,
+      maintenance_type: "daily_check",
+      employee_id: body.employee_id,
+      checked_at: body.checked_at,
+      inspections: body.checklist_item_id.map((id, index) => ({
+        checklist_item_id: id,
+        status: body.status[index],
+        issue_detail: body.issue_detail[index] || "",
+      })),
+    };
 
-    // เรียก API create inspection
-    const response = await axios.post(
-      `${BACKEND_URL}/api/checklist/inspection`,
-      { inspections: inspectionData },
-      {
-        headers: {
-          Authorization: authHeader,
-        },
-      }
-    );
+    // เลือก endpoint ตาม auth
+    const endpoint = authHeader
+      ? `${BACKEND_URL}/api/checklist/inspection`
+      : `${BACKEND_URL}/api/public/checklist/inspection`;
+
+    const response = await axios.post(endpoint, inspectionData, {
+      headers: authHeader ? { Authorization: authHeader } : {},
+    });
 
     return NextResponse.json({
       success: true,

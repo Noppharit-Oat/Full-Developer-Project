@@ -108,8 +108,9 @@ function MachineDailyCheckPage() {
         }
 
         const data = await response.json();
-        console.log("API Response:", data);
+        console.log("API Response:", data); // ดูข้อมูลที่ได้
 
+        // ตรวจสอบโครงสร้างข้อมูล
         if (!data.success) {
           throw new Error("ไม่พบข้อมูลรายการตรวจเช็ค");
         }
@@ -241,87 +242,6 @@ function MachineDailyCheckPage() {
     setShowChecklist(true);
   };
 
-  const handleMachineIdle = async () => {
-    try {
-      if (!isLoggedIn && !validateEmployeeId()) {
-        return;
-      }
-
-      // Confirm with user
-      const result = await Swal.fire({
-        title: "ยืนยันการบันทึก Machine Idle",
-        text: "คุณต้องการบันทึกสถานะเครื่องจักรเป็น Idle ใช่หรือไม่?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "ยืนยัน",
-        cancelButtonText: "ยกเลิก",
-      });
-
-      if (!result.isConfirmed) {
-        return;
-      }
-
-      const token = localStorage.getItem("token");
-
-      const response = await fetch("/api/daily-check", {
-        method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : undefined,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          machine_id: machineNo,
-          checklist_item_id: null, // ส่ง null เมื่อเป็น idle
-          user_id: user?.id || null,
-          employee_id: isLoggedIn ? user?.employee_id : employeeId,
-          machine_name: machineName,
-          machine_no: machineNo,
-          model: machineModel,
-          customer: machineCustomer,
-          family: machineFamily,
-          status: null, // ส่ง null เมื่อเป็น idle
-          issue_detail: null,
-          maintenance_type: "mc_idle", // เพิ่ม maintenance_type
-          checked_at: new Date().toISOString(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to submit machine idle status");
-      }
-
-      await Swal.fire({
-        icon: "success",
-        title: "บันทึกสำเร็จ",
-        text: "บันทึกสถานะ Machine Idle เรียบร้อยแล้ว",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-
-      // รีเซ็ตฟอร์ม
-      setMachineName("");
-      setMachineNo("");
-      setMachineModel("");
-      setMachineCustomer("");
-      setMachineFamily("");
-      setShowChecklist(false);
-      setCheckData({
-        checklist: [],
-      });
-    } catch (error) {
-      console.error("Error submitting machine idle:", error);
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text: error.message || "ไม่สามารถบันทึกข้อมูลได้",
-      });
-    }
-  };
-
   const handleSubmit = async () => {
     try {
       if (!isLoggedIn && !validateEmployeeId()) {
@@ -376,7 +296,6 @@ function MachineDailyCheckPage() {
           issue_detail: checkData.checklist.map(
             (item) => item.issueDetail || ""
           ),
-          maintenance_type: "daily_check", // เพิ่ม maintenance_type
           checked_at: new Date().toISOString(),
         }),
       });
@@ -630,25 +549,18 @@ function MachineDailyCheckPage() {
                 )}
               </div>
 
-              {/* Load Checklist และ Machine Idle Buttons */}
-              <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium mb-1">
-                      Ready to Start Inspection
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Click the button to load the inspection checklist or mark
-                      machine as idle
-                    </p>
-                  </div>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleMachineIdle}
-                      className={`px-4 py-2 rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-150 ease-in-out`}
-                    >
-                      Machine Idle
-                    </button>
+              {/* Load Checklist Button */}
+              {!showChecklist && (
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium mb-1">
+                        Ready to Start Inspection
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Click the button to load the inspection checklist
+                      </p>
+                    </div>
                     <button
                       onClick={handleLoadChecklist}
                       className={`${buttonClass} px-6`}
@@ -657,7 +569,7 @@ function MachineDailyCheckPage() {
                     </button>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 

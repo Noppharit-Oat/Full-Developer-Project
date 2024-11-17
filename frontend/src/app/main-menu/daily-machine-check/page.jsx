@@ -79,94 +79,100 @@ function MachineDailyCheckPage() {
         setLoading(true);
         const token = localStorage.getItem("token");
 
-        const baseUrl =
-          process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+        const queryParams = new URLSearchParams({
+          frequency: "daily",
+          machineName: machineName,
+          model: machineModel,
+        }).toString();
 
-        const url = new URL(
-          "/api/checklist", // ใช้ Next.js API Route path เสมอ
-          baseUrl
-        );
-
-        // เพิ่ม query parameters
-        url.searchParams.set("frequency", "daily");
-        url.searchParams.set("machineName", machineName);
-        url.searchParams.set("model", machineModel);
+        const endpoint = token
+          ? `/api/checklist?${queryParams}`
+          : `/api/public/checklist?${queryParams}`;
 
         const headers = {
           "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
         };
 
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
-        }
-
-        const response = await fetch(url, {
+        const response = await fetch(endpoint, {
           headers: headers,
-          // เพิ่ม error handling สำหรับ network errors
-          signal: AbortSignal.timeout(10000), // timeout 10 วินาที
+          signal: AbortSignal.timeout(10000),
         });
 
-        // ตรวจสอบ content type
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Invalid response format. Expected JSON.");
-        }
-
         if (!response.ok) {
-          // ดัก HTTP errors (4xx, 5xx)
-          if (response.status === 404) {
-            throw new Error(
-              "Checklist not found. Please verify the machine details."
-            );
-          } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(
-              errorData.message || `Server error: ${response.status}`
-            );
-          }
+          throw new Error(
+            response.status === 404
+              ? "ไม่พบรายการตรวจเช็ค กรุณาตรวจสอบข้อมูลเครื่องจักร"
+              : "ไม่สามารถโหลดรายการตรวจเช็คได้"
+          );
         }
 
         const data = await response.json();
+        console.log("API Response:", data); // ดูข้อมูลที่ได้
 
-        if (data.total === 0) {
-          await Swal.fire({
-            icon: "warning",
-            title: "ไม่พบรายการตรวจเช็ค",
-            text: "ไม่พบรายการตรวจเช็คสำหรับเครื่องจักรนี้",
-          });
-          setShowChecklist(false);
-          return;
+        // ตรวจสอบโครงสร้างข้อมูล
+        if (!data.success) {
+          throw new Error("ไม่พบข้อมูลรายการตรวจเช็ค");
         }
 
-        setCheckData({
-          checklist: data.groups.flatMap((group) =>
-            group.items.map((item) => ({
-              id: item.id,
-              item: item.item_name,
-              thaiItem: item.item_thai_name,
-              groupName: group.group.name,
-              groupThaiName: group.group.thai_name,
-              status: null,
-              issueDetail: "",
-            }))
-          ),
-        });
+        let transformedData;
+
+        if (data.groups) {
+          // กรณี login - ข้อมูลมาในรูปแบบ groups
+          transformedData = {
+            checklist: data.groups.flatMap((group) =>
+              group.items.map((item) => ({
+                id: item.id,
+                item: item.item_name,
+                thaiItem: item.item_thai_name,
+                groupName: group.group.name,
+                groupThaiName: group.group.thai_name,
+                status: null,
+                issueDetail: "",
+              }))
+            ),
+          };
+        } else if (data.data) {
+          // กรณีไม่ login - ข้อมูลมาในรูปแบบ flat array
+          const groupedItems = data.data.reduce((groups, item) => {
+            const group = groups[item.group_name] || [];
+            group.push(item);
+            groups[item.group_name] = group;
+            return groups;
+          }, {});
+
+          transformedData = {
+            checklist: Object.entries(groupedItems).flatMap(
+              ([groupName, items]) =>
+                items.map((item) => ({
+                  id: item.id,
+                  item: item.item_name,
+                  thaiItem: item.item_thai_name,
+                  groupName: item.group_name,
+                  groupThaiName: item.group_thai_name,
+                  status: null,
+                  issueDetail: "",
+                }))
+            ),
+          };
+        } else {
+          throw new Error("รูปแบบข้อมูลไม่ถูกต้อง");
+        }
+
+        setCheckData(transformedData);
       } catch (error) {
         console.error("Error fetching checklist:", error);
 
-        // แสดง error message ที่เหมาะสมตาม error type
         let errorMessage = "ไม่สามารถโหลดรายการตรวจเช็คได้";
         if (error.name === "AbortError") {
           errorMessage = "การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง";
-        } else if (error.message.includes("Invalid response format")) {
-          errorMessage = "รูปแบบข้อมูลไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ";
         }
 
         setError(error);
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาด",
-          text: errorMessage,
+          text: error.message || errorMessage,
         });
         setShowChecklist(false);
       } finally {

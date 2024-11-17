@@ -1,4 +1,5 @@
 // src/app/api/checklist/route.js
+
 import { NextResponse } from "next/server";
 import axios from "axios";
 
@@ -46,7 +47,7 @@ export async function GET(req) {
       });
     }
 
-    // map data เหมือนเดิม
+   
     return NextResponse.json({
       success: true,
       data: response.data.items.map((item) => ({

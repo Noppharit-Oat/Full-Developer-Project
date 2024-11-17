@@ -1,4 +1,5 @@
 // src/app/api/daily-check/route.js
+
 import { NextResponse } from "next/server";
 import axios from "axios";
 
@@ -17,7 +18,7 @@ export async function POST(req) {
     }
 
     // แปลงข้อมูลให้ตรงกับ format ที่ backend ต้องการ
-    const inspectionData = body.checklist.map(item => ({
+    const inspectionData = body.checklist.map((item) => ({
       checklist_item_id: item.id,
       machine_name: body.machineName,
       machine_no: body.machineNo,
@@ -25,8 +26,8 @@ export async function POST(req) {
       customer: body.machineCustomer,
       family: body.machineFamily,
       status: item.status,
-      issue_detail: item.issueDetail || '',
-      user_id: body.userId
+      issue_detail: item.issueDetail || "",
+      user_id: body.userId,
     }));
 
     // เรียก API create inspection
@@ -35,22 +36,21 @@ export async function POST(req) {
       { inspections: inspectionData },
       {
         headers: {
-          Authorization: authHeader
-        }
+          Authorization: authHeader,
+        },
       }
     );
 
     return NextResponse.json({
       success: true,
-      message: "Inspection recorded successfully"
+      message: "Inspection recorded successfully",
     });
-
   } catch (error) {
     console.error("Error submitting inspection:", error);
     return NextResponse.json(
       {
         success: false,
-        message: error.response?.data?.message || "Failed to submit inspection"
+        message: error.response?.data?.message || "Failed to submit inspection",
       },
       { status: error.response?.status || 500 }
     );

@@ -1,58 +1,84 @@
-// src/controllers/dailyCheckController.js
-const dailyCheckService = require("../services/dailyCheckService");
+// src/services/dailyCheckService.js
+const pool = require("../config/database");
 
-exports.createDailyCheck = function(req, res) {
-  const checkData = {
-    ...req.body,
-    user_id: req.user?.id,
-  };
+class DailyCheckService {
+  async createInspection(inspections) {
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      const results = [];
+      
+      // Insert multiple inspection records
+      for (const inspection of inspections) {
+        const result = await client.query(
+          `INSERT INTO inspection_history 
+          (machine_name, machine_no, model, customer, family,
+           maintenance_type, user_id, checked_at, checklist_item_id,
+           status, issue_detail)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          RETURNING *`,
+          [
+            inspection.machine_name,
+            inspection.machine_no,
+            inspection.model,
+            inspection.customer,
+            inspection.family,
+            inspection.maintenance_type,
+            inspection.user_id,
+            inspection.checked_at,
+            inspection.checklist_item_id,
+            inspection.status,
+            inspection.issue_detail
+          ]
+        );
+        
+        results.push(result.rows[0]);
+      }
 
-  dailyCheckService.createDailyCheck(checkData)
-    .then(result => {
-      res.status(201).json({
-        success: true,
-        message: checkData.maintenance_type === "mc_idle"
-          ? "Machine idle status recorded successfully"
-          : "Daily check recorded successfully",
-        data: result,
-      });
-    })
-    .catch(error => {
-      console.error("Error creating daily check record:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to record daily check",
-      });
-    });
-};
-
-exports.getDailyCheckHistory = function(req, res) {
-  const { machine_no, date } = req.query;
-
-  if (!machine_no) {
-    return res.status(400).json({
-      success: false,
-      message: "Machine number is required",
-    });
+      await client.query('COMMIT');
+      return results;
+      
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
-  const filters = {
-    machine_no,
-    date: date || new Date().toISOString().split("T")[0],
-  };
+  async createIdleInspection(data) {
+    const client = await pool.connect();
+    
+    try {
+      const result = await client.query(
+        `INSERT INTO inspection_history 
+        (machine_name, machine_no, model, customer, family,
+         maintenance_type, user_id, checked_at, status, issue_detail)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING *`,
+        [
+          data.machine_name,
+          data.machine_no,
+          data.model,
+          data.customer,
+          data.family,
+          data.maintenance_type,
+          data.user_id,
+          data.checked_at,
+          data.status,
+          data.issue_detail
+        ]
+      );
 
-  dailyCheckService.getDailyCheckHistory(filters)
-    .then(history => {
-      res.json({
-        success: true,
-        data: history,
-      });
-    })
-    .catch(error => {
-      console.error("Error fetching daily check history:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch daily check history",
-      });
-    });
-};
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+}
+
+module.exports = new DailyCheckService();

@@ -1,72 +1,123 @@
+// src/controllers/dailyCheckController.js
 const dailyCheckService = require("../services/dailyCheckService");
 
-function createDailyCheck(req, res) {
-  const checkData = {
-    ...req.body,
-    user_id: req.user?.id,
-  };
+// Utility function for handling inspection creation
+const handleInspectionCreation = async (req, res, isPublic = false) => {
+  try {
+    const {
+      machine_name,
+      machine_no,
+      model,
+      customer,
+      family,
+      maintenance_type,
+      employee_id,
+      checked_at,
+      inspections
+    } = req.body;
 
-  if (!checkData.machine_no || !checkData.machine_name) {
-    return res.status(400).json({
+    if (!inspections || !Array.isArray(inspections)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid inspections data"
+      });
+    }
+
+    // Map inspections to match database structure
+    const inspectionRecords = inspections.map(inspection => ({
+      machine_name,
+      machine_no,
+      model,
+      customer,
+      family,
+      maintenance_type: maintenance_type || 'daily_check',
+      user_id: employee_id,
+      checked_at,
+      checklist_item_id: inspection.checklist_item_id,
+      status: inspection.status,
+      issue_detail: inspection.issue_detail || null
+    }));
+
+    const results = await dailyCheckService.createInspection(inspectionRecords);
+
+    res.status(201).json({
+      success: true,
+      message: "Inspection recorded successfully",
+      data: results
+    });
+  } catch (error) {
+    console.error(`Error creating ${isPublic ? 'public' : ''} inspection:`, error);
+    res.status(500).json({
       success: false,
-      message: "Missing required fields",
+      message: "Failed to create inspection",
+      error: error.message
     });
   }
+};
 
-  dailyCheckService.createDailyCheck(checkData)
-    .then(result => {
-      res.status(201).json({
-        success: true,
-        message: checkData.maintenance_type === "mc_idle"
-          ? "Machine idle status recorded successfully"
-          : "Daily check recorded successfully",
-        data: result,
-      });
-    })
-    .catch(error => {
-      console.error("Error creating daily check record:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to record daily check",
-        error: error.message,
-      });
+// Utility function for handling idle inspection creation
+const handleIdleInspectionCreation = async (req, res, isPublic = false) => {
+  try {
+    const {
+      machine_name,
+      machine_no,
+      model,
+      customer,
+      family,
+      maintenance_type,
+      employee_id,
+      checked_at
+    } = req.body;
+
+    const result = await dailyCheckService.createIdleInspection({
+      machine_name,
+      machine_no,
+      model,
+      customer,
+      family,
+      maintenance_type: 'mc_idle',
+      user_id: employee_id,
+      checked_at,
+      status: 'idle',
+      issue_detail: null
     });
-}
 
-function getDailyCheckHistory(req, res) {
-  const { machine_no, date } = req.query;
-  
-  if (!machine_no) {
-    return res.status(400).json({
+    res.status(201).json({
+      success: true,
+      message: "Machine idle status recorded successfully",
+      data: result
+    });
+  } catch (error) {
+    console.error(`Error creating ${isPublic ? 'public' : ''} idle inspection:`, error);
+    res.status(500).json({
       success: false,
-      message: "Machine number is required",
+      message: "Failed to create idle inspection",
+      error: error.message
     });
   }
+};
 
-  const filters = {
-    machine_no,
-    date: date || new Date().toISOString().split("T")[0],
-  };
+// Authenticated endpoints
+const createInspection = async (req, res) => {
+  await handleInspectionCreation(req, res);
+};
 
-  dailyCheckService.getDailyCheckHistory(filters)
-    .then(history => {
-      res.json({
-        success: true,
-        data: history,
-        count: history.length,
-      });
-    })
-    .catch(error => {
-      console.error("Error fetching daily check history:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch daily check history",
-        error: error.message,
-      });
-    });
-}
+const createIdleInspection = async (req, res) => {
+  await handleIdleInspectionCreation(req, res);
+};
+
+// Public endpoints
+const createPublicInspection = async (req, res) => {
+  await handleInspectionCreation(req, res, true);
+};
+
+const createPublicIdleInspection = async (req, res) => {
+  await handleIdleInspectionCreation(req, res, true);
+};
 
 module.exports = {
-  createDailyCheck,
-  getDailyCheckHistory
+  createInspection,
+  createIdleInspection,
+  createPublicInspection,
+  createPublicIdleInspection
 };

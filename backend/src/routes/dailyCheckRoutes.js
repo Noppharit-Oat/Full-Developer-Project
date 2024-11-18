@@ -1,12 +1,20 @@
 // src/routes/dailyCheckRoutes.js
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middlewares/authMiddleware");
-const controller = require("../controllers/dailyCheckController");
+const { authenticateToken } = require("../middlewares/authMiddleware");
+const {
+  createInspection,
+  createIdleInspection,
+  createPublicInspection,
+  createPublicIdleInspection
+} = require("../controllers/dailyCheckController");
 
-router.post("/", authMiddleware, controller.createDailyCheck);
-router.get("/history", authMiddleware, controller.getDailyCheckHistory);
-router.post("/public", controller.createDailyCheck);
-router.get("/public/history", controller.getDailyCheckHistory);
+// Protected routes (require authentication)
+router.post("/inspection", authenticateToken, createInspection);
+router.post("/inspection/idle", authenticateToken, createIdleInspection);
+
+// Public routes (no authentication required)
+router.post("/public/inspection", createPublicInspection);
+router.post("/public/inspection/idle", createPublicIdleInspection);
 
 module.exports = router;

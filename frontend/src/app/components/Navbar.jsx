@@ -32,7 +32,7 @@ const Navbar = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         logout();
-        router.push("/login");
+        router.push("/");
         Swal.fire(
           "ออกจากระบบแล้ว!",
           "คุณได้ออกจากระบบเรียบร้อยแล้ว",

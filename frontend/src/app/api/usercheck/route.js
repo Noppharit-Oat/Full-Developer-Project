@@ -15,7 +15,7 @@ export async function POST(request) {
     }
     // Call your backend API
     const response = await axios.post(
-      `${BACKEND_URL}/api/login`,
+      `${BACKEND_URL}/api/users/login`,
       {
         employee_id,
         password,

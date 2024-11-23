@@ -25,8 +25,8 @@ export async function POST(req) {
 
       // เลือก endpoint ตาม auth
       const endpoint = authHeader
-        ? `${BACKEND_URL}/api/checklist/inspection/idle`
-        : `${BACKEND_URL}/api/public/checklist/inspection/idle`;
+        ? `${BACKEND_URL}/api/daily-check/idle`
+        : `${BACKEND_URL}/api/public/daily-check/idle`;
 
       const response = await axios.post(endpoint, idleData, {
         headers: authHeader ? { Authorization: authHeader } : {},
@@ -57,8 +57,8 @@ export async function POST(req) {
 
     // เลือก endpoint ตาม auth
     const endpoint = authHeader
-      ? `${BACKEND_URL}/api/checklist/inspection`
-      : `${BACKEND_URL}/api/public/checklist/inspection`;
+      ? `${BACKEND_URL}/api/daily-check`
+      : `${BACKEND_URL}/api/public/daily-check`;
 
     const response = await axios.post(endpoint, inspectionData, {
       headers: authHeader ? { Authorization: authHeader } : {},

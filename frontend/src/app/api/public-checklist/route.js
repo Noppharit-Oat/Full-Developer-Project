@@ -20,7 +20,7 @@ export async function GET(req) {
             );
         }
         // เรียก endpoint ของ public API
-        const response = await axios.get(${ BACKEND_URL } / api / public / checklist / items, {
+        const response = await axios.get(`${BACKEND_URL}/api/public/checklist/items`, {
             params: {
                 frequency,
                 machineName,

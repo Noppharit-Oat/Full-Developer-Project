@@ -12,8 +12,6 @@ import {
   Settings,
   Users,
   BarChart2,
-  Sun,
-  Moon,
   LogIn,
   PauseCircle,
 } from "lucide-react";
@@ -23,10 +21,8 @@ import { Trash2 } from "lucide-react";
 
 function LevelUser({ userRole }) {
   const router = useRouter();
-  const { darkMode, setDarkMode } = useDarkMode();
+  const { darkMode } = useDarkMode();
   const { user } = useAuth();
-
-  console.log("User in LevelUser:", user);
 
   const handleButtonClick = (path) => {
     console.log(`Navigating to: /main-menu/${path}`);
@@ -82,11 +78,11 @@ function LevelUser({ userRole }) {
       { title: "Log Daily Machine", path: "log-dailymachine" },
       { title: "Log Machine Down", path: "log-machinedown" },
       { title: "Output Dashboard", path: "output-dashboard" },
-      { title: "Register User", path: "register" }, // Fixed: path should match the URL
+      { title: "Register User", path: "register" },
       { title: "User Profile", path: "user-profile" },
     ],
     3: [
-      { title: "Machine Down Dashboard", path: "machinedown-dashboard" }, // Fixed: typo in dashboard
+      { title: "Machine Down Dashboard", path: "machinedown-dashboard" },
       { title: "User Profile", path: "user-profile" },
     ],
     4: [
@@ -94,7 +90,7 @@ function LevelUser({ userRole }) {
       { title: "Log Machine Down", path: "log-machinedown" },
       { title: "Output Dashboard", path: "output-dashboard" },
       { title: "Work Instruction", path: "work-instruction" },
-      { title: "Register User", path: "register" }, // Fixed: path should match the URL
+      { title: "Register User", path: "register" },
       { title: "User Profile", path: "user-profile" },
     ],
     5: [
@@ -102,8 +98,8 @@ function LevelUser({ userRole }) {
       { title: "Log Machine Down", path: "log-machinedown" },
       { title: "Output Dashboard", path: "output-dashboard" },
       { title: "Work Instruction", path: "work-instruction" },
-      { title: "Register Technician", path: "register" }, // Fixed: path should match the URL
-      { title: "Machine Down Dashboard", path: "machinedown-dashboard" }, // Fixed: typo in dashboard
+      { title: "Register Technician", path: "register" },
+      { title: "Machine Down Dashboard", path: "machinedown-dashboard" },
       { title: "User Profile", path: "user-profile" },
     ],
     6: [
@@ -112,9 +108,9 @@ function LevelUser({ userRole }) {
       { title: "Work Instruction", path: "work-instruction" },
       { title: "Log Daily Machine", path: "log-dailymachine" },
       { title: "Log Machine Down", path: "log-machinedown" },
-      { title: "Machine Down Dashboard", path: "machinedown-dashboard" }, // Fixed: typo in dashboard
+      { title: "Machine Down Dashboard", path: "machinedown-dashboard" },
       { title: "Output Dashboard", path: "output-dashboard" },
-      { title: "Register User", path: "register" }, // Fixed: path should match the URL
+      { title: "Register User", path: "register" },
       { title: "Delete User", path: "delete-user" },
       { title: "User Profile", path: "user-profile" },
     ],
@@ -127,50 +123,39 @@ function LevelUser({ userRole }) {
           darkMode ? "bg-gray-800" : "bg-white"
         } p-8 rounded-3xl shadow-2xl transition-colors duration-300`}
       >
-        <div className="flex justify-between items-center">
+        <div className="space-y-6">
           <h2
-            className={`text-4xl font-extrabold ${
+            className={`text-4xl font-extrabold text-center ${
               darkMode ? "text-white" : "text-gray-900"
             }`}
           >
-            Menu
+            My Services
           </h2>
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`p-2 rounded-full ${
-              darkMode
-                ? "bg-gray-700 text-yellow-300"
-                : "bg-gray-200 text-gray-700"
+          <p
+            className={`text-xl ${
+              darkMode ? "text-gray-300" : "text-gray-600"
             }`}
           >
-            {darkMode ? (
-              <Sun className="h-6 w-6" />
-            ) : (
-              <Moon className="h-6 w-6" />
-            )}
-          </button>
+            Welcome {user?.first_name} {user?.last_name}
+          </p>
         </div>
-        <p
-          className={`text-xl ${darkMode ? "text-gray-300" : "text-gray-600"}`}
-        >
-          Welcome {user?.first_name} {user?.last_name}
-        </p>
+
         <nav className="mt-10">
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {menuItems[userRole]?.map((item, index) => (
               <button
                 key={index}
                 onClick={() => handleButtonClick(item.path)}
-                className={`group ${
+                className={`group relative ${
                   darkMode
                     ? "bg-gray-700 hover:bg-gray-600"
-                    : "bg-white hover:bg-gray-50"
-                } rounded-xl transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg p-6 flex flex-col items-center text-center`}
+                    : "bg-blue-50 hover:bg-blue-100"
+                } rounded-xl transition duration-300 ease-in-out transform hover:scale-105 hover:-translate-y-1 hover:shadow-lg p-6 flex flex-col items-center text-center`}
               >
                 <div
                   className={`mb-4 ${
                     darkMode ? "bg-gray-600" : "bg-blue-100"
-                  } p-3 rounded-full`}
+                  } p-3 rounded-full transition-colors duration-300`}
                 >
                   {React.cloneElement(getIcon(item.path), {
                     className: `h-6 w-6 ${
@@ -179,17 +164,12 @@ function LevelUser({ userRole }) {
                   })}
                 </div>
                 <h3
-                  className={`text-lg font-semibold mb-2 ${
+                  className={`text-lg font-semibold ${
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
                   {item.title}
                 </h3>
-                <ChevronRight
-                  className={`h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                />
               </button>
             ))}
           </div>

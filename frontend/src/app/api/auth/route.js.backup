@@ -1,0 +1,171 @@
+// src/app/api/auth/route.js
+
+import { NextResponse } from "next/server";
+import axios from "axios";
+
+const BACKEND_URL = process.env.BACKEND_URL || "http://172.31.71.125:5000";
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
+    const { token } = body;
+
+    if (!token) {
+      return NextResponse.json(
+        { message: "Token is required" },
+        { status: 400 }
+      );
+    }
+
+    // เรียก API เพื่อตรวจสอบ token
+    const response = await axios.post(
+      `${BACKEND_URL}/api/auth/verify`,
+      { token },
+      {
+        timeout: 5000,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return NextResponse.json(response.data);
+  } catch (error) {
+    console.error("Token verification error:", error);
+
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        // กรณีได้รับ response แต่เป็น error
+        if (error.response.status === 401) {
+          return NextResponse.json(
+            { message: "Token expired or invalid" },
+            { status: 401 }
+          );
+        }
+        return NextResponse.json(
+          { message: error.response.data.message || "Verification failed" },
+          { status: error.response.status }
+        );
+      } else if (error.request) {
+        // กรณีส่ง request แล้วไม่ได้รับ response
+        return NextResponse.json(
+          { message: "No response from authentication server" },
+          { status: 503 }
+        );
+      }
+    }
+
+    // กรณีเกิด error อื่นๆ
+    return NextResponse.json(
+      { message: "An error occurred during token verification" },
+      { status: 500 }
+    );
+  }
+}
+
+// GET method สำหรับตรวจสอบสถานะ authentication
+export async function GET(request) {
+  try {
+    // ดึง token จาก header
+    const authHeader = request.headers.get("authorization");
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { message: "No token provided" },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    // เรียก API เพื่อตรวจสอบข้อมูล user
+    const response = await axios.get(`${BACKEND_URL}/api/auth/user`, {
+      timeout: 5000,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return NextResponse.json(response.data);
+  } catch (error) {
+    console.error("User verification error:", error);
+
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        if (error.response.status === 401) {
+          return NextResponse.json(
+            { message: "Session expired, please login again" },
+            { status: 401 }
+          );
+        }
+        return NextResponse.json(
+          { message: error.response.data.message || "Verification failed" },
+          { status: error.response.status }
+        );
+      } else if (error.request) {
+        return NextResponse.json(
+          { message: "No response from server" },
+          { status: 503 }
+        );
+      }
+    }
+
+    return NextResponse.json(
+      { message: "An error occurred during user verification" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT method สำหรับ refresh token
+export async function PUT(request) {
+  try {
+    const body = await request.json();
+    const { refreshToken } = body;
+
+    if (!refreshToken) {
+      return NextResponse.json(
+        { message: "Refresh token is required" },
+        { status: 400 }
+      );
+    }
+
+    // เรียก API เพื่อ refresh token
+    const response = await axios.post(
+      `${BACKEND_URL}/api/auth/refresh`,
+      { refreshToken },
+      {
+        timeout: 5000,
+      }
+    );
+
+    return NextResponse.json(response.data);
+  } catch (error) {
+    console.error("Token refresh error:", error);
+
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        if (error.response.status === 401) {
+          return NextResponse.json(
+            { message: "Invalid refresh token" },
+            { status: 401 }
+          );
+        }
+        return NextResponse.json(
+          { message: error.response.data.message || "Token refresh failed" },
+          { status: error.response.status }
+        );
+      } else if (error.request) {
+        return NextResponse.json(
+          { message: "No response from server" },
+          { status: 503 }
+        );
+      }
+    }
+
+    return NextResponse.json(
+      { message: "An error occurred during token refresh" },
+      { status: 500 }
+    );
+  }
+}

@@ -2,21 +2,24 @@
 
 const express = require("express");
 const router = express.Router();
+const { authenticateToken } = require("../middlewares/authMiddleware");
 
 // Import routes
 const userRoutes = require("./userRoutes");
 const machineRoutes = require("./machineRoutes");
 const checklistRoutes = require("./checklistRoutes");
 const publicRoutes = require("./publicRoutes");
-const dailyCheckRoutes = require("./dailyCheckRoutes");
+const inspectionsRoutes = require("./inspectionsRoutes");
+const authRoutes = require("./authRoutes");
 
-// Public routes first
+// Public routes
 router.use("/public", publicRoutes);
+router.use("/auth", authRoutes);
 
-// Then protected routes
-router.use("/users", userRoutes);
-router.use("/machines", machineRoutes);
-router.use("/checklist", checklistRoutes);
-router.use("/daily-check", dailyCheckRoutes);
+// Protected routes
+router.use("/users", authenticateToken, userRoutes);
+router.use("/machines", authenticateToken, machineRoutes);
+router.use("/checklist", authenticateToken, checklistRoutes);
+router.use("/inspections", authenticateToken, inspectionsRoutes);
 
 module.exports = router;

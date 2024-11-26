@@ -3,13 +3,10 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const { authenticateToken } = require("../middlewares/authMiddleware");
 
-router.post("/login", userController.login);
-router.post("/register", userController.register);
-
-router.delete("/delete", authenticateToken, userController.deleteUser);
-router.put("/updateProfile", authenticateToken, userController.updateProfile);
-router.get("/profile", authenticateToken, userController.getProfile);
+// ไม่ต้องมี login และ register ที่นี่แล้ว เพราะย้ายไป public routes แล้ว
+router.delete("/delete", userController.deleteUser);
+router.put("/updateProfile", userController.updateProfile);
+router.get("/profile", userController.getProfile);
 
 module.exports = router;

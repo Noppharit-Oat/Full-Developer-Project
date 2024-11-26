@@ -4,57 +4,78 @@ const bcrypt = require("bcryptjs");
 const pool = require("../config/database");
 const { generateToken } = require("../utils/jwtUtils");
 
-// ฟังก์ชันการล็อกอิน
+// แก้ไขฟังก์ชัน login
 const login = async (req, res) => {
   const { employee_id, password } = req.body;
 
+  // 1. เพิ่มการตรวจสอบข้อมูลเบื้องต้น
   if (!employee_id || !password) {
-    return res
-      .status(400)
-      .json({ message: "Employee ID and password are required." });
+    return res.status(400).json({
+      success: false,
+      message: "Employee ID and password are required.",
+    });
   }
 
   try {
+    // 2. ปรับ SQL query ให้ใช้ TRIM
     const result = await pool.query(
-      'SELECT * FROM "users" WHERE employee_id = $1',
+      'SELECT * FROM "users" WHERE TRIM(employee_id) = TRIM($1)',
       [employee_id]
     );
 
     const user = result.rows[0];
 
+    // 3. ตรวจสอบว่าพบ user หรือไม่
     if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Invalid employee ID or password." });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid employee ID or password.",
+      });
     }
 
+    // 4. ตรวจสอบรหัสผ่านด้วย bcrypt
     const match = await bcrypt.compare(password, user.password_hash);
 
     if (!match) {
-      return res
-        .status(401)
-        .json({ message: "Invalid employee ID or password." });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid employee ID or password.",
+      });
     }
 
-    const token = generateToken(user);
+    // 5. สร้าง token
+    const token = generateToken({
+      employee_id: user.employee_id.trim(),
+      role: user.role,
+    });
 
+    // 6. อัพเดทเวลา
+    await pool.query(
+      'UPDATE "users" SET updated_at = CURRENT_TIMESTAMP WHERE TRIM(employee_id) = TRIM($1)',
+      [employee_id]
+    );
+
+    // 7. ส่งข้อมูลกลับ
     res.status(200).json({
+      success: true,
       message: "Login successful!",
-      token,
-      expiresIn: "1h",
+      token: token,
       user: {
-        employee_id: user.employee_id,
+        employee_id: user.employee_id.trim(),
         role: user.role,
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
-        phone_number: user.phone_number,
-      },
+        phone_number: user.phone_number
+      }
     });
+
   } catch (error) {
-    console.error("Error during login:", error);
+    // 8. ปรับปรุงการจัดการ error
+    console.error("Login error:", error);
     res.status(500).json({
-      message: "Server error",
+      success: false,
+      message: "Server error occurred during login.",
       error: error.message,
       stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });

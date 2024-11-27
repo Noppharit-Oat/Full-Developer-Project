@@ -36,10 +36,18 @@ console.error = function filterErrors(msg, ...args) {
   return originalConsoleError.apply(console, [msg, ...args]);
 };
 
-// Dynamic import for QR Scanner
-const QrReader = dynamic(() => import("react-qr-scanner"), {
-  ssr: false,
-});
+// Dynamic import for QR Scanner with proper loading configuration
+const QrReader = dynamic(
+  () => import("react-qr-scanner").then((mod) => mod.default),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+        <div className="animate-pulse">กำลังเปิดกล้อง...</div>
+      </div>
+    ),
+  }
+);
 
 const QrScanner = ({ onScanSuccess, buttonText }) => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -111,6 +119,10 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
     },
   };
 
+  if (!isClient) {
+    return null; // Return null on server side
+  }
+
   return (
     <div className="flex flex-col items-center space-y-4">
       <div className="flex space-x-2">
@@ -154,7 +166,7 @@ const QrScanner = ({ onScanSuccess, buttonText }) => {
         </div>
       )}
 
-      {isClient && !error && isCameraOpen && (
+      {!error && isCameraOpen && (
         <div className="relative w-full max-w-md aspect-square bg-black rounded-lg overflow-hidden">
           {/* QR Scanner Overlay */}
           <div className="absolute inset-0 z-10">

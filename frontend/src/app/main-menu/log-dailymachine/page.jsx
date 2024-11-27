@@ -60,59 +60,65 @@ const LogDailyMachinePage = () => {
     loadData();
 }, []);
 
-  const fetchMachines = async () => {
-    try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch("/api/inspections", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
+const fetchMachines = async () => {
+  try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch("/api/inspections", {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+          }
+      });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Failed to fetch machines");
-        }
+      if (!response.ok) {
+          throw new Error("Failed to fetch machines");
+      }
 
-        const data = await response.json();
+      const data = await response.json();
 
-        // จัดการข้อมูลที่ได้รับ
-        const formattedData = data.map(item => ({
-            id: item.id,
-            machine_name: item.machine_name,
-            machine_no: item.machine_no,
-            model: item.model,
-            customer: item.customer,
-            family: item.family,
-            last_check: item.last_check,
-            status: item.status,
-            checked_by: item.checked_by
-        }));
+      // ตรวจสอบว่า data เป็น array
+      if (!Array.isArray(data)) {
+          console.error("Received non-array data:", data);
+          throw new Error("Invalid data format received");
+      }
 
-        setMachines(formattedData);
+      // จัดการข้อมูลที่ได้รับ
+      const formattedData = data.map(item => ({
+          id: item.id,
+          machine_name: item.machine_name || '',
+          machine_no: item.machine_no || '',
+          model: item.model || '',
+          customer: item.customer || '',
+          family: item.family || '',
+          last_check: item.last_check || new Date().toISOString(),
+          status: item.status || '',
+          checked_by: item.checked_by || ''
+      }));
 
-        // Get today's date without time
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+      setMachines(formattedData);
 
-        // Filter for today's data
-        const todayData = formattedData.filter((machine) => {
-            const checkDate = new Date(machine.last_check);
-            checkDate.setHours(0, 0, 0, 0);
-            return checkDate.getTime() === today.getTime();
-        });
+      // Get today's date without time
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-        setFilteredResults(todayData);
-        setIsSearching(true);
-    } catch (err) {
-        setError(err.message);
-        setFilteredResults([]);
-    } finally {
-        setLoading(false);
-    }
+      // Filter for today's data
+      const todayData = formattedData.filter((machine) => {
+          const checkDate = new Date(machine.last_check);
+          checkDate.setHours(0, 0, 0, 0);
+          return checkDate.getTime() === today.getTime();
+      });
+
+      setFilteredResults(todayData);
+      setIsSearching(true);
+  } catch (err) {
+      console.error("Fetch error:", err);
+      setError(err.message);
+      setFilteredResults([]);
+  } finally {
+      setLoading(false);
+  }
 };
 
   // Get unique values for dropdowns

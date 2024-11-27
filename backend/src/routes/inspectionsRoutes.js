@@ -1,4 +1,5 @@
 // src/routes/inspectionsRoutes.js
+
 const express = require("express");
 const router = express.Router();
 const inspectionsController = require("../controllers/inspectionsController");
@@ -9,6 +10,8 @@ router.use(authenticateToken);
 
 // Protected Routes (ต้องการ authentication)
 router.post("/", inspectionsController.createInspection);
+
+// แก้ไขส่วนนี้ที่มีปัญหา - ต้องระบุ controller function
 router.put("/:id", inspectionsController.updateInspection);
 router.patch("/:id/status", inspectionsController.updateStatus);
 router.delete("/:id", inspectionsController.deleteInspection);

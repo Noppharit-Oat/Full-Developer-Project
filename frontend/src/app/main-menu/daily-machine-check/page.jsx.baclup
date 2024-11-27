@@ -264,16 +264,19 @@ function MachineDailyCheckPage() {
       }
 
       const token = localStorage.getItem("token");
+      const endpoint = token
+        ? "/api/daily-check/idel"
+        : "/api/public/daily-check/idle";
 
-      const response = await fetch("/api/daily-check", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
-          Authorization: token ? `Bearer ${token}` : undefined,
           "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({
           machine_id: machineNo,
-          checklist_item_id: null, // ส่ง null เมื่อเป็น idle
+          checklist_item_id: null,
           user_id: user?.id || null,
           employee_id: isLoggedIn ? user?.employee_id : employeeId,
           machine_name: machineName,
@@ -281,9 +284,9 @@ function MachineDailyCheckPage() {
           model: machineModel,
           customer: machineCustomer,
           family: machineFamily,
-          status: null, // ส่ง null เมื่อเป็น idle
+          status: null,
           issue_detail: null,
-          maintenance_type: "mc_idle", // เพิ่ม maintenance_type
+          maintenance_type: "mc_idle",
           checked_at: new Date().toISOString(),
         }),
       });
@@ -355,12 +358,13 @@ function MachineDailyCheckPage() {
       }
 
       const token = localStorage.getItem("token");
+      const endpoint = token ? "/api/daily-check" : "/api/public/daily-check";
 
-      const response = await fetch("/api/daily-check", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
-          Authorization: token ? `Bearer ${token}` : undefined,
           "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({
           machine_id: machineNo,
@@ -376,7 +380,7 @@ function MachineDailyCheckPage() {
           issue_detail: checkData.checklist.map(
             (item) => item.issueDetail || ""
           ),
-          maintenance_type: "daily_check", // เพิ่ม maintenance_type
+          maintenance_type: "daily_check",
           checked_at: new Date().toISOString(),
         }),
       });

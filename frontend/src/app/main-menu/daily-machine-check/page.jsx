@@ -247,7 +247,6 @@ function MachineDailyCheckPage() {
         return;
       }
 
-      // Confirm with user
       const result = await Swal.fire({
         title: "ยืนยันการบันทึก Machine Idle",
         text: "คุณต้องการบันทึกสถานะเครื่องจักรเป็น Idle ใช่หรือไม่?",
@@ -264,9 +263,18 @@ function MachineDailyCheckPage() {
       }
 
       const token = localStorage.getItem("token");
-      const endpoint = token
-        ? "/api/daily-check/idel"
-        : "/api/public/daily-check/idle";
+      const endpoint = token ? "/api/inspections" : "/api/public/inspections";
+
+      const payload = {
+        machine_name: machineName,
+        machine_no: machineNo,
+        family: machineFamily,
+        status: "Idle",
+        checked_by: isLoggedIn ? user?.employee_id : employeeId,
+        last_check: new Date().toISOString(),
+      };
+
+      console.log("Machine Idle payload:", payload);
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -274,24 +282,11 @@ function MachineDailyCheckPage() {
           "Content-Type": "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
         },
-        body: JSON.stringify({
-          machine_id: machineNo,
-          checklist_item_id: null,
-          user_id: user?.id || null,
-          employee_id: isLoggedIn ? user?.employee_id : employeeId,
-          machine_name: machineName,
-          machine_no: machineNo,
-          model: machineModel,
-          customer: machineCustomer,
-          family: machineFamily,
-          status: null,
-          issue_detail: null,
-          maintenance_type: "mc_idle",
-          checked_at: new Date().toISOString(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
+      console.log("Machine idle response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to submit machine idle status");
@@ -305,16 +300,14 @@ function MachineDailyCheckPage() {
         timer: 1500,
       });
 
-      // รีเซ็ตฟอร์ม
+      // Reset form
       setMachineName("");
       setMachineNo("");
       setMachineModel("");
       setMachineCustomer("");
       setMachineFamily("");
       setShowChecklist(false);
-      setCheckData({
-        checklist: [],
-      });
+      setCheckData({ checklist: [] });
     } catch (error) {
       console.error("Error submitting machine idle:", error);
       Swal.fire({
